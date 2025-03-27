@@ -1,0 +1,122 @@
+/* Ensure full screen coverage */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  justify-content: center;
+  align-items: center;
+  background-color: #f4f4f4;
+  font-family: Arial, sans-serif;
+}
+
+.login-container {
+  display: flex;
+  flex-direction: row; /* Horizontal layout */
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+/* Left - Login Form Section */
+.login-form {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10; /* Remove extra padding */
+  background-color: #ffffff;
+  width: 50vw; /* Half of the screen width */
+  height: 100vh; /* Full screen height */
+  box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form h1 {
+    justify-content: center;
+  font-size: 2.2rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #000;
+}
+
+.login-form p {
+    justify-content: center;
+  color: #555;
+  font-size: 1rem;
+  text-align: center;
+  max-width: 80%;
+  margin-bottom: 20px;
+}
+
+.clerk-container {
+  width: 100%;
+  height: auto; /* Full height of the parent container */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+    padding: 20px;
+}
+
+/* Right - Quote Section */
+.quote-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;
+  color: white;
+  text-align: center;
+  padding: 3rem;
+  width: 50vw; /* Half of the screen width */
+  height: 100vh; /* Full screen height */
+}
+
+.quote {
+  font-size: 1.8rem;
+  font-style: italic;
+  max-width: 80%;
+  line-height: 1.5;
+}
+
+.author {
+  font-weight: bold;
+  margin-top: 15px;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.separator {
+  width: 100px;
+  height: 4px;
+  background-color: rgba(255, 255, 255, 0.5);
+  margin: 1.5rem 0;
+  border-radius: 2px;
+}
+
+.info {
+  font-size: 1rem;
+  opacity: 0.8;
+  max-width: 80%;
+  line-height: 1.4;
+}
+
+/* Improve Button Styling */
+.btn-primary {
+  background-color: #000;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #333;
+}

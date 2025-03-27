@@ -1,0 +1,41 @@
+
+      .quote-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #111111f6; /* Dark background */
+        color: #fff;
+        padding: 20px;
+        width: 50%;
+        height: 120vh;
+    }
+    
+    .quote-content {
+        max-width: 400px;
+        text-align: left;
+    }
+    
+    .quote-text {
+        font-size: 24px;
+        font-weight: 600;
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+    
+    .quote-author {
+        font-size: 14px;
+        font-weight: 500;
+    }
+    
+    .divider {
+        height: 4px;
+        width: 80px;
+        background: rgba(255, 255, 255, 0.5);
+        border-radius: 4px;
+        margin: 20px 0;
+    }
+    
+    .quote-description {
+        font-size: 14px;
+        opacity: 0.8;
+    }
