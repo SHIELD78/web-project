@@ -1,5 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignUpPage from "./Pages/SignUp/SignUp";
+import  HeroPage from "./Pages/Hero/Hero";
+import DashboardPage from "./Pages/Dashboard/Dashboard";
+
+import SettingsPage from "./Pages/Setting/Setting";
+import SignInPage from "./Pages/SignIn/SignIn";
+import SelectOrgPage from "./Pages/SelectOrg/SelectOrg";
+import ActivityLogPage from "./Pages/ActivityLog/ActivityLog";
+import BoardPage from "./Pages/Board/Board";
+import TaskPage from "./Pages/Task/Task";
+
 
 function App() {
   return (
@@ -8,7 +18,7 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/" element={<HeroPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/signin" element={<SignInPage />} />
         <Route path="/selectorg" element={<SelectOrgPage />} />

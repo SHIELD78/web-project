@@ -1,0 +1,46 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Prevents scrolling */
+    height: 100vh; /* Ensures full viewport height */
+    width: 100vw; /* Ensures full viewport width */
+  }
+  
+  .signup-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100vw;
+  }
+  
+  .image-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f8f9fa;
+    height: 100vh; /* Ensures proper height */
+   /* Allows precise adjustments */
+    
+  }
+  
+  .image-section img {
+    max-width: 95%;
+    height: auto;
+    border-radius: 10px;
+    box-shadow: 10px;
+    position: relative;
+    top: -12px;
+    left: 110px; /* Moves image slightly right */
+  }
+  
+  .signup-section {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    min-height: 100vh; /* Matches height with image section */
+  }
+  
