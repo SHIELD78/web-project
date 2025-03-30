@@ -19,7 +19,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #f8f9fa;
+    background-color: #cac7c7;
     height: 100vh; /* Ensures proper height */
    /* Allows precise adjustments */
     
@@ -40,7 +40,7 @@ html, body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: white;
+    background: rgb(255, 255, 255);
     min-height: 100vh; /* Matches height with image section */
   }
   

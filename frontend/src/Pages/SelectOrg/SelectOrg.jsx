@@ -1,19 +1,26 @@
-import React from "react";
-import { OrganizationSwitcher, useOrganizationList } from "@clerk/clerk-react";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
+import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import "./SelectOrg.css";
 
-
 const SelectOrgPage = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const { isLoaded, organizationList } = useOrganizationList();
+  const { organization } = useOrganization(); // Track selected org
 
+  // Auto-redirect if only one org exists
   useEffect(() => {
-    if (isLoaded && organizationList && organizationList.length === 1) {
+    if (isLoaded && organizationList?.length === 1) {
       navigate(`/dashboard?orgId=${organizationList[0].organization.id}`);
     }
   }, [isLoaded, organizationList, navigate]);
+
+  // Redirect when user selects an organization
+  useEffect(() => {
+    if (organization) {
+      navigate(`/dashboard?orgId=${organization.id}`);
+    }
+  }, [organization, navigate]);
 
   if (!isLoaded) return <p>Loading...</p>;
 
@@ -25,6 +32,6 @@ const SelectOrgPage = () => {
       </div>
     </div>
   );
-}
+};
 
 export default SelectOrgPage;

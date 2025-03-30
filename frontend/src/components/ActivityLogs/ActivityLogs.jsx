@@ -45,13 +45,13 @@ const ActivityLogs = () => {
 
           <div className="activity-chart">
             <h3>Activity Overview</h3>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="80%" height={300}>
               {chartType === "bar" && (
                 <BarChart data={activityData}>
                   <XAxis dataKey="action" />
                   <YAxis />
                   <Tooltip />
-                  <Bar dataKey="count" fill="#8884d8" />
+                  <Bar dataKey="count" fill="purple" />
                 </BarChart>
               )}
               {chartType === "line" && (
