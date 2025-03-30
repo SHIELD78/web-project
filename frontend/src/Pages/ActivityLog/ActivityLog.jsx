@@ -1,13 +1,15 @@
 import React from "react";
 
+import ActivityLogs from "../../components/ActivityLogs/ActivityLogs.jsx";
 
  const ActivityLogPage = () => {
     return (
         <div className="board-page">
-            Activity Log
-        </div>
-        );
 
-    }
+            <ActivityLogs />
+        </div>
+    );
+}
     export default ActivityLogPage;
 
+   

@@ -1,0 +1,110 @@
+/* Dashboard Layout */
+.dashboard {
+    display: flex;
+    height: 100vh;
+    background: #f8f9fa;
+    overflow: auto;
+  }
+  
+  /* Main Content */
+  .main-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    width: 256px;
+    flex-shrink: 0;
+    display: none;
+  }
+  
+  @media (min-width: 768px) {
+    .sidebar {
+      display: block;
+    }
+  }
+  
+  /* Settings Page Container */
+  .settings-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Title & Subtitles */
+  .settings-title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 10px;
+  }
+  
+  .settings-subtitle {
+    font-size: 16px;
+    color: #666;
+    margin-bottom: 20px;
+  }
+  
+  /* Settings Sections */
+  .settings-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Invite Button */
+  .invite-button {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .invite-button:hover {
+    background: #0056b3;
+  }
+  
+  /* Danger Section */
+  .danger-section {
+    background: #ffe6e6;
+    padding: 15px;
+    border-radius: 8px;
+  }
+  
+  /* Danger Buttons */
+  .danger-button {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .danger-button:hover {
+    background: #b22222;
+  }
+  
+  .leave-button {
+    margin-right: 10px;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .settings-container {
+      width: 95%;
+      padding: 15px;
+    }
+  }
+  
