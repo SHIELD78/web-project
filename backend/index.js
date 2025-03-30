@@ -1,10 +1,8 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import cors from 'cors';
-import router from './router/route';// Single file for all routes
 
-dotenv.config();
+import cors from 'cors';
+import router from './router/route.js';// Single file for all routes
 
 const app = express();
 
@@ -16,14 +14,13 @@ app.use(express.json());
 app.use('/api', router); // All routes are handled in one file
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('MongoDB connected');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
-});
+mongoose.connect('mongodb+srv://harsh:H%40rshdalmia@login.jypzsqf.mongodb.net/')
+  .then(() => {
+    console.log('MongoDB connected');
+  })
+  .catch(err => {
+    console.error('MongoDB connection error:', err);
+  });
 
 // Start the server
 const PORT = 3000
