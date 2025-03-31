@@ -1,0 +1,33 @@
+.column-title-container {
+    margin-bottom: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+  
+  .column-title {
+    font-weight: 500;
+    margin: 0;
+    padding: 8px;
+    font-size: 16px;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .column-title-input {
+    font-size: 16px;
+    padding: 6px 8px;
+    border: 1px solid #2a2a3d;
+    background-color: #1a1b22;
+    color: white;
+    border-radius: 4px;
+    width: calc(100% - 16px);
+    margin: 0;
+    font-weight: 500;
+  }
+  
+  .column-title-input:focus {
+    outline: none;
+    border-color: #4c78ea;
+  }
+  
