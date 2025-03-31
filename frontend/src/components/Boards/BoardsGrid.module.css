@@ -1,0 +1,95 @@
+.boardsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
+  
+  .boardsHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    font-weight: 500;
+  }
+  
+  .boardsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+  }
+  
+  .boardCard {
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: 0 4px 6px var(--shadow);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .boardCard:hover {
+    transform: translateY(-4px);
+  }
+  
+  .boardBackground {
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+  }
+  
+  .boardBackground::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+    z-index: 1;
+  }
+  
+  .boardTitle {
+    padding: var(--spacing-md);
+    color: white;
+    font-weight: 500;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .createBoardCard {
+    height: 150px;
+    border-radius: var(--radius-lg);
+    background-color: var(--surface-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    box-shadow: 0 4px 6px var(--shadow);
+  }
+  
+  .createBoardCard:hover {
+    background-color: var(--surface-lighter);
+  }
+  
+  .createBoardContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-sm);
+    color: var(--text-secondary);
+  }
+  
+  .createBoardContent h3 {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+  
+  .createBoardContent p {
+    font-size: 0.9rem;
+  }
+  
+  
