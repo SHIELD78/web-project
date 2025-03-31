@@ -1,0 +1,258 @@
+
+.sidebar {
+    width: 260px;
+    background-color: var(--surface);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    flex-shrink: 0;
+    transition: width 0.3s ease;
+}
+
+.sidebarCollapsed {
+    width: 0;
+}
+
+/* Header */
+.workspacesHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-md);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+/* Add Button */
+.addButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+    border: none;
+    background: none;
+}
+
+.addButton:hover {
+    background-color: var(--surface-light);
+    color: var(--text-primary);
+}
+
+/* Add Workspace Input */
+.workspaceInput {
+    display: flex;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+}
+
+.workspaceInput input {
+    flex: 1;
+    padding: var(--spacing-sm);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.workspaceInput input:focus {
+    border-color: var(--primary);
+}
+
+.workspaceInput button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.workspaceInput button:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Workspaces List */
+.workspacesList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+}
+
+/* Workspace Item */
+.workspaceItem {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Workspace Header */
+.workspaceHeader {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-sm) var(--spacing-md);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    margin: 0 var(--spacing-xs);
+    transition: background-color 0.2s ease;
+}
+
+.workspaceHeader:hover,
+.workspaceHeader.active {
+    background-color: var(--surface-light);
+}
+
+/* Workspace Icon */
+.workspaceIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: var(--radius-sm);
+    color: white;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+/* Workspace Name */
+.workspaceName {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Expand Button */
+.expandButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.expandButton:hover {
+    background-color: var(--surface-lighter);
+    color: var(--text-primary);
+}
+
+/* Workspace Navigation */
+.workspaceNav {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-xs) 0;
+}
+
+/* Navigation Items */
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-sm) var(--spacing-lg);
+    color: var(--text-secondary);
+    border-radius: var(--radius-md);
+    margin: var(--spacing-xs) var(--spacing-md);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.navItem:hover {
+    background-color: var(--surface-light);
+    color: var(--text-primary);
+}
+
+.activeNavItem {
+    background-color: var(--surface-lighter);
+    color: var(--text-primary);
+}
+
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Darkened background overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+  }
+  
+  .modalContent {
+    background-color: var(--surface);
+    padding: var(--spacing-lg);
+    border-radius: var(--radius-md);
+    width: 350px;
+    max-width: 90%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .modalContent h3 {
+    margin-bottom: var(--spacing-md);
+    font-size: 1.2rem;
+    color: var(--text-primary);
+  }
+  
+  .modalContent input {
+    width: 100%;
+    padding: var(--spacing-sm);
+    margin-bottom: var(--spacing-md);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    outline: none;
+  }
+  
+  .modalContent input:focus {
+    border-color: var(--primary);
+  }
+  
+  .modalContent button {
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin: var(--spacing-sm);
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  
+  .modalContent button:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  .modalContent .cancelButton {
+    background-color: var(--surface-light);
+    color: var(--text-secondary);
+  }
+  
+  .modalContent .cancelButton:hover {
+    background-color: var(--surface);
+  }
+  
+  /* Close button inside modal */
+  .closeModal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    background: none;
+    border: none;
+  }

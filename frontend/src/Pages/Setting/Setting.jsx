@@ -1,7 +1,7 @@
 import React from "react";
 import { UserProfile ,OrganizationProfile} from "@clerk/clerk-react"; // Clerk UserProfile component
-import Sidebar from "../../components/sidebar/sidebar";
-import TopNav from "../../components/topnav/topnav";
+import "../../components/Sidebar/Sidebar"
+import "../../components/Header/Header"
 import "./Setting.css"; // Import styles
 
 const SettingsPage = () => {
