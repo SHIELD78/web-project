@@ -15,8 +15,9 @@ import {
   Cell,
 } from "recharts";
 import "./ActivityLog.css";
-import Sidebar from "../../components/sidebar/sidebar";
-import TopNav from "../../components/topnav/topnav";
+import "../../components/Sidebar/Sidebar"
+import "../../components/Header/Header"
+
 import axios from "axios";
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff7300", "#0088FE", "#00C49F"];
 
