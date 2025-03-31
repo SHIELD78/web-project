@@ -118,8 +118,9 @@ router.delete('/boards/:boardId', requireAuth(), async (req, res) => {
 
 // Activity Log Routes
 // Fetch all activity logs for an organization
-router.get('/activity/organization/:organizationId', requireAuth(), async (req, res) => {
-    const logs = await ActivityLog.find({ organizationId: req.params.organizationId }).sort({ timestamp: -1 });
+router.get('/activity/organization/:organizationId',  async (req, res) => {
+  const organizationId = req.params.organizationId;
+    const logs = await ActivityLog.find({ organizationId }).sort({ timestamp: -1 });
     res.json(logs);
   });
   
@@ -147,7 +148,7 @@ router.get('/activity/organization/:organizationId', requireAuth(), async (req, 
   });
   
 // Organization Routes
-router.get('/organizations', requireAuth(), async (req, res) => {
+router.get('/organizations',  async (req, res) => {
   const { userId } = getAuth(req);
   
   try {

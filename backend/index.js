@@ -5,10 +5,17 @@ import cors from 'cors';
 import router from './router/route.js';// Single file for all routes
 
 const app = express();
+app.use(cors())
+app.options('*', cors()); // Enable preflight requests for all routes
 
-// Middleware
-app.use(cors());
+
+
+
 app.use(express.json());
+app.use((req, res, next) => {
+  console.log(`Incoming request: ${req.method} ${req.url}`);
+  next();
+});
 
 // Routes
 app.use('/api', router); // All routes are handled in one file
