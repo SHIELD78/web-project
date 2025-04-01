@@ -5,10 +5,11 @@ import Board from '../models/Board.js';
 import ActivityLog from '../models/ActivityLog.js';
 import nodemailer from 'nodemailer';
 
-import { clerkMiddleware, requireAuth, getAuth, clerkClient } from '@clerk/express';
+
+import { clerkMiddleware, requireAuth, getAuth, createClerkClient } from '@clerk/express';
 
 const router = express.Router();
-
+const clerkClient = createClerkClient({ secretKey:'sk_test_rURx8R6IFHQWjf2Z5a5qkxzbNwdShb5bf4I4oWL7if' });
 router.use(clerkMiddleware({
   publishableKey:'pk_test_YWRlcXVhdGUtbGxhbWEtMTEuY2xlcmsuYWNjb3VudHMuZGV2JA',
   secretKey:'sk_test_rURx8R6IFHQWjf2Z5a5qkxzbNwdShb5bf4I4oWL7if'
@@ -148,15 +149,32 @@ router.get('/activity/organization/:organizationId',  async (req, res) => {
   });
   
 // Organization Routes
-router.get('/organizations',  async (req, res) => {
-  const { userId } = getAuth(req);
-  
+
+router.get('/organizations', async (req, res) => {
   try {
-    const userOrganizations = await clerkClient.organizations.getOrganizationMembershipList({ userId });
-    res.json(userOrganizations);
+    // Get the authenticated user ID
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: No authenticated user' });
+    }
+    
+    console.log("Authenticated userId:", userId);
+    
+    // Get user's organization memberships
+    const memberships = await clerkClient.users.getOrganizationMembershipList({
+      userId
+    });
+    console.log("Memberships:", memberships);
+    // Extract organization data - the response structure may be different
+    // based on your Clerk version
+    const organizations = memberships.data.map(membership => membership.organization);
+    
+    console.log("Organizations:", organizations);
+    res.json(organizations);
   } catch (error) {
+    console.error('Error fetching organizations:', error);
     res.status(500).json({ error: 'Error fetching organizations' });
   }
 });
-
 export default router;

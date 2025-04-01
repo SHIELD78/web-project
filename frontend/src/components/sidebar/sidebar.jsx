@@ -1,14 +1,57 @@
-import { useNavigate } from 'react-router-dom';
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { PlusIcon, ActivityIcon, SettingsIcon } from "../Icons/Icons.jsx";
-import { useClerk, OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/clerk-react";
+import { useClerk, OrganizationSwitcher, useSession } from "@clerk/clerk-react";
 import styles from "./Sidebar.module.css";
 
 function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
   const { user } = useClerk();
-  const { organization } = useOrganization(); // Get selected organization
-  const { organizationList } = useOrganizationList(); // Get all organizations
+  const { session } = useSession();
   const navigate = useNavigate();
+  const [organizations, setOrganizations] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function fetchOrganizations() {
+      setLoading(true);
+      setError(null);
+      
+      try {
+        if (user && session) {
+          // Get the token from the session
+          const token = await session.getToken();
+          
+          if (token) {
+            const response = await fetch("http://localhost:3000/api/organizations", {
+              method: "GET",
+              headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+              },
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(errorData.error || "Failed to fetch organizations");
+            }
+            
+            const data = await response.json();
+            setOrganizations(data);
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (user && session) {
+      fetchOrganizations();
+    }
+  }, [user, session]);
 
   const handleAddWorkspace = () => {
     window.location.href = "/selectorg";
@@ -25,23 +68,30 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
         <button className={styles.addButton} onClick={handleAddWorkspace}>
           <PlusIcon />
         </button>
-        
-        {/* Organization Switcher */}
+
+        {/* Organization Switcher from Clerk */}
         <OrganizationSwitcher />
 
-        {/* Display all organizations */}
-        {organizationList?.map((org) => (
-          <div
-            key={org.id}
-            className={styles.organizationItem}
-            onClick={() => handleOrganizationClick(org)}
-          >
-            <div className={styles.workspaceIcon} style={{ backgroundColor: "#0984e3" }}>
-              {org.name.charAt(0)}
+        {/* Display organizations */}
+        {loading && <p>Loading organizations...</p>}
+        {error && <p className={styles.errorText}>Error: {error}</p>}
+        
+        {organizations.length > 0 ? (
+          organizations.map((org) => (
+            <div
+              key={org.id}
+              className={styles.organizationItem}
+              onClick={() => handleOrganizationClick(org)}
+            >
+              <div className={styles.workspaceIcon} style={{ backgroundColor: "#0984e3" }}>
+                {org.name.charAt(0)}
+              </div>
+              <span className={styles.workspaceName}>{org.name}</span>
             </div>
-            <span className={styles.workspaceName}>{org.name}</span>
-          </div>
-        ))}
+          ))
+        ) : !loading && !error ? (
+          <p>No organizations found.</p>
+        ) : null}
       </div>
 
       <div className={styles.workspacesHeader}>
