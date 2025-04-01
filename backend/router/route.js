@@ -25,23 +25,24 @@ const transporter = nodemailer.createTransport({
 
 // Task Routes
 router.get('/tasks', async (req, res) => {
-  try {
-    const tasks = await Task.find().populate('listId', 'title').populate('boardId', 'title').populate('userId', 'firstName lastName'); // Populate list and board information
-    const groupedTasks = tasks.reduce((acc, task) => {
-      // Group tasks by listId
-      if (!acc[task.listId._id]) {
-        acc[task.listId._id] = { listId: task.listId, tasks: [] };
-      }
-      acc[task.listId._id].tasks.push(task);
-      return acc;
-    }, {});
+  const { listId } = req.query; // Get listId from query parameters
 
-    const result = Object.values(groupedTasks); // Convert the grouped tasks to an array for easy response
-    res.json(result);
+  if (!listId) {
+    return res.status(400).json({ error: 'List ID is required' });
+  }
+
+  try {
+    const tasks = await Task.find({ listId }) // Filter tasks by listId
+      .populate('listId', 'title')
+      .populate('boardId', 'title')
+      .populate('userId', 'firstName lastName'); // Populate list, board, and user info
+
+    res.json(tasks);
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 });
+
 
 router.post('/tasks', async (req, res) => {
   const { title, boardId, listId, description, position } = req.body;
