@@ -107,7 +107,12 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
                 <div className={styles.dropdownMenu}>
                   <div
                     className={styles.dropdownItem}
-                    onClick={() =>navigate(`/organization/${org.id}/dashboard`)} // Navigate to the dashboard
+                    onClick={() =>{ if (activeWorkspace !== org.id) {
+                      onWorkspaceChange(org.id); // Change the active workspace
+                    }
+                  
+                    // Navigate to the dashboard and pass the workspace ID as a URL parameter
+                    navigate(`/dashboard?orgId=${org.id}`);}}
                   >
                     <DashboardIcon /> Dashboard
                   </div>
