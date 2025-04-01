@@ -1,7 +1,5 @@
-"use client"
 
-import { useState, useEffect, useRef } from "react"
-import { useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
 import "./kanban.css"
 import {
   fetchLists,
