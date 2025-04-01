@@ -25,7 +25,7 @@
 
 /* Activity Container */
 .activity-container {
-  padding: 20px;
+  padding: 100px;
   max-width: 1200px;
   margin: 0 auto;
   width: 100%;
@@ -37,7 +37,7 @@
   font-size: 24px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #1a202c;
+  color: white;
 }
 
 /* Chart Buttons */

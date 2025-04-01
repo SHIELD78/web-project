@@ -12,7 +12,6 @@ import styles from "./Dashboard.module.css";
 const API_URL = "http://localhost:3000/api";
 
 function Dashboard({ workspaces, setWorkspaces, onWorkspaceChange }) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [showBoardModal, setShowBoardModal] = useState(false);
   const [boardTitle, setBoardTitle] = useState("");
   const [selectedBackground, setSelectedBackground] = useState("/images/default-board-bg.jpg");
@@ -79,20 +78,17 @@ function Dashboard({ workspaces, setWorkspaces, onWorkspaceChange }) {
   return (
     <div className={styles.dashboard}>
       <Header
-        toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
         activeWorkspace={organizationId}
         workspaces={workspaces}
         onWorkspaceSelect={onWorkspaceChange}
         handleCreateBoard={handleCreateBoard}
       />
-      <div className={`${styles.content} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
+      <div className={styles.content}>
         <Sidebar
           workspaces={workspaces}
           setWorkspaces={setWorkspaces}
           activeWorkspace={organizationId}
           onWorkspaceChange={onWorkspaceChange}
-          isOpen={isSidebarOpen}
-          
         />
         <main className={styles.main}>
           <BoardsGrid

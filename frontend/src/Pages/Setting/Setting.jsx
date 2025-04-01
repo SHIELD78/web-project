@@ -1,33 +1,20 @@
-import React, { useState } from "react";
-import { OrganizationProfile } from "@clerk/clerk-react"; // Clerk OrganizationProfile component
-import Sidebar from "../../components/Sidebar/Sidebar";
-import Header from "../../components/Header/Header";
+import React from "react";
+import { UserProfile ,OrganizationProfile} from "@clerk/clerk-react"; // Clerk UserProfile component
+import Sidebar from "../../components/Sidebar/Sidebar"
+import Header from "../../components/Header/Header"
 import "./Setting.css"; // Import styles
 
 const SettingsPage = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar state
-
-  // Toggle sidebar visibility
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-
-      {/* Main Content */}
-      <div className={`main-content ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
-        {/* Header with toggle button */}
-        <Header toggleSidebar={toggleSidebar} />
-
-        {/* Settings Content */}
+    return (
+        <div className="dashboard">
+      <Sidebar />
+      <div className="main-content">
+        <Header />
         <div className="settings-container">
           <h1 className="settings-title">Settings</h1>
           <p className="settings-subtitle">Manage organization settings</p>
 
-          {/* Organization Profile */}
+          {/* Organization Profile - Fixed Height */}
           <div className="organization-profile">
             <OrganizationProfile
               appearance={{
@@ -51,7 +38,7 @@ const SettingsPage = () => {
         </div>
       </div>
     </div>
-  );
-};
 
+    );
+}
 export default SettingsPage;

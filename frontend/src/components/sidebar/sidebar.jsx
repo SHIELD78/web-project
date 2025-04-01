@@ -1,50 +1,22 @@
-"use client";
-
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from "react";
-import {
-  PlusIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  GridIcon,
-  ActivityIcon,
-  SettingsIcon,
-  BillingIcon,
-} from "../Icons/Icons.jsx";
-import { useClerk, useOrganization } from "@clerk/clerk-react";
+import { PlusIcon, ActivityIcon, SettingsIcon } from "../Icons/Icons.jsx";
+import { useClerk, OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/clerk-react";
 import styles from "./Sidebar.module.css";
 
-function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange, isOpen }) {
+function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
   const { user } = useClerk();
   const { organization } = useOrganization(); // Get selected organization
-  const [selectedOrg, setSelectedOrg] = useState(null);
-  const [expandedWorkspaces, setExpandedWorkspaces] = useState({ [activeWorkspace]: true });
-
-  useEffect(() => {
-    if (organization) {
-      setSelectedOrg(organization); // Store the selected organization
-    }
-  }, [organization]);
-
-  const toggleWorkspace = (workspaceId) => {
-    setExpandedWorkspaces((prev) => ({
-      ...prev,
-      [workspaceId]: !prev[workspaceId],
-    }));
-  };
+  const { organizationList } = useOrganizationList(); // Get all organizations
+  const navigate = useNavigate();
 
   const handleAddWorkspace = () => {
     window.location.href = "/selectorg";
   };
 
-  const handleOrganizationClick = () => {
-    if (organization) {
-      window.location.href = `/organization/${organization.id}`;
-    }
+  const handleOrganizationClick = (org) => {
+    window.location.href = `/organization/${org.id}`;
   };
-
-  if (!isOpen) {
-    return <div className={styles.sidebarCollapsed}></div>;
-  }
 
   return (
     <aside className={styles.sidebar}>
@@ -53,16 +25,23 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange, isOpen }) {
         <button className={styles.addButton} onClick={handleAddWorkspace}>
           <PlusIcon />
         </button>
+        
+        {/* Organization Switcher */}
+        <OrganizationSwitcher />
 
-        {/* Display the selected organization */}
-        {selectedOrg && (
-          <div className={styles.organizationItem} onClick={handleOrganizationClick}>
+        {/* Display all organizations */}
+        {organizationList?.map((org) => (
+          <div
+            key={org.id}
+            className={styles.organizationItem}
+            onClick={() => handleOrganizationClick(org)}
+          >
             <div className={styles.workspaceIcon} style={{ backgroundColor: "#0984e3" }}>
-              {selectedOrg.name.charAt(0)}
+              {org.name.charAt(0)}
             </div>
-            <span className={styles.workspaceName}>{selectedOrg.name}</span>
+            <span className={styles.workspaceName}>{org.name}</span>
           </div>
-        )}
+        ))}
       </div>
 
       <div className={styles.workspacesHeader}>
@@ -70,7 +49,7 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange, isOpen }) {
       </div>
 
       {/* Activity */}
-      <div className={styles.workspaceItem}>
+      <div className={styles.workspaceItem} onClick={() => navigate('/ActivityLog')}>
         <div className={styles.workspaceHeader}>
           <ActivityIcon />
           <span className={styles.workspaceName}>Activity</span>
@@ -78,20 +57,29 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange, isOpen }) {
       </div>
 
       {/* Settings */}
-      <div className={styles.workspaceItem}>
+      <div className={styles.workspaceItem} onClick={() => navigate('/settings')}>
         <div className={styles.workspaceHeader}>
           <SettingsIcon />
           <span className={styles.workspaceName}>Settings</span>
         </div>
       </div>
 
-      {/* Tasks */}
-      <div className={styles.workspaceItem}>
-        <div className={styles.workspaceHeader}>
-          <GridIcon />
-          <span className={styles.workspaceName}>Tasks</span>
+      {/* User Profile Section */}
+      {user && (
+        <div className={styles.userSection}>
+          <div className={styles.userAvatar}>
+            {user.imageUrl ? (
+              <img src={user.imageUrl || "/placeholder.svg"} alt={user.fullName || "User"} />
+            ) : (
+              <span>{(user.fullName || "User").charAt(0)}</span>
+            )}
+          </div>
+          <div className={styles.userInfo}>
+            <span className={styles.userName}>{user.fullName || "User"}</span>
+            <span className={styles.userEmail}>{user.primaryEmailAddress?.emailAddress || ""}</span>
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   );
 }

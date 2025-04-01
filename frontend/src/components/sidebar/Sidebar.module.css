@@ -8,6 +8,11 @@
     flex-direction: column;
     transition: width 0.3s ease;
     padding: 0;
+    position: fixed; /* Fixed position on the left side */
+    top: 64px; /* Align it below the header */
+    left: 0;
+    bottom: 0;
+    z-index: 999; /* Ensure it's above other content */
 }
 
 /* Sidebar when collapsed */
@@ -357,64 +362,154 @@
     font-size: 1.2rem; /* Adjust icon size */
     width: 200px; /* Fixed width */
     height: 40px; /* Fixed height */
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+}
+/* Add these styles to your Sidebar.module.css file */
+
+.orgHeaderContainer {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     align-items: center;
-    text-transform: uppercase;  /* Uppercase text for modern feel */
-}
-
-.addButton:hover {
-    background: linear-gradient(145deg, #444, #6c5ce7); /* Reverse gradient on hover */
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.3);  /* Slightly larger shadow on hover */
-    transform: translateY(-2px);  /* Slight lift effect on hover */
-}
-
-.addButton:active {
-    background: linear-gradient(145deg, #444, #6c5ce7);  /* Keep the same gradient */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);  /* Smaller shadow on active */
-    transform: translateY(2px);  /* Button "pressed" effect */
-}
-
-.addButton:focus {
-    outline: none; /* Remove default focus outline */
-    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.4);  /* Focus ring */
-}
-
-/* Icon inside the button */
-.addButton svg {
+    margin-bottom: 16px;
+  }
+  
+  .organizationsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .loadingContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    color: #718096;
+  }
+  
+  .loadingSpinner {
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    border-top: 2px solid #3182ce;
+    border-radius: 50%;
     width: 20px;
     height: 20px;
-    margin-right: 8px;  /* Space between icon and text */
-}
-
-/* Icon when the button is hovered */
-.addButton:hover svg {
-    fill: #fff;  /* Icon color change on hover */
-}
-
-
-/* Organization Name Styling */
-.selectedOrgSection {
-    padding: 12px 18px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 8px;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  .errorContainer {
+    padding: 12px;
+    background-color: #FEF2F2;
+    border-radius: 6px;
+    color: #DC2626;
+    text-align: center;
+  }
+  
+  .retryButton {
+    background-color: #DC2626;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 12px;
+    margin-top: 8px;
     cursor: pointer;
-    transition: background-color 0.3s;
-    border-radius: 0px;
+    font-size: 12px;
+  }
+  
+  .orgList {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .orgDetails {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .orgRole {
+    font-size: 12px;
+    color: #718096;
+  }
+  
+  .emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    color: #718096;
+  }
+  
+  .createOrgButton {
+    background-color: #3182CE;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-top: 8px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .userSection {
+    margin-top: auto;
+    padding: 12px;
+    border-top: 1px solid #E2E8F0;
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1.1rem;  /* Larger font size for the organization name */
-}
-
-.selectedOrgSection:hover {
-    background-color: #222; /* Darker hover state */
-}
-
-/* Organization Name Text */
-.selectedOrgSection .workspaceName {
-    font-size: 100rem;  /* Increase the font size */
+  }
+  
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: #CBD5E0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    overflow: hidden;
+  }
+  
+  .userAvatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .userAvatar span {
+    color: #4A5568;
+    font-size: 14px;
     font-weight: bold;
-    color: #4e1212;  /* Light text for visibility */
-}
+  }
+  
+  .userInfo {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .userName {
+    font-size: 14px;
+    font-weight: 500;
+    color: #2D3748;
+  }
+  
+  .userEmail {
+    font-size: 12px;
+    color: #718096;
+  }
 
+  .organizationItem.selected {
+    background-color: #0984e3; /* Highlight color */
+    color: white; /* Change text color */
+  }
 
+  .organizationItem.selected {
+    background-color: #0984e3; /* Highlight color */
+    color: white; /* Text color */
+  }
