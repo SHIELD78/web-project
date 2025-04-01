@@ -1,393 +1,483 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
+import { useNavigate } from "react-router-dom"
 import "./kanban.css"
+import {
+  fetchLists,
+  fetchTasks,
+  createList,
+  updateList,
+  deleteList,
+  createTask,
+  updateTask,
+  deleteTask,
+  setTaskReminder,
+} from "./api.js"
 
-const KanbanBoard = ({ backgroundImage }) => {
-  // State for columns (lists), tasks, and modal
-  const [columns, setColumns] = useState([])
-  const [tasks, setTasks] = useState({})
+const KanbanBoard = ({ boardId, boardTitle, backgroundImage, organizationId }) => {
+  const [lists, setLists] = useState([])
+  const [tasksByList, setTasksByList] = useState({})
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalType, setModalType] = useState("") // 'task', 'column', or 'reminder'
+  const [modalType, setModalType] = useState("") // 'task', 'list', or 'reminder'
   const [modalData, setModalData] = useState({})
-  const [draggedItem, setDraggedItem] = useState(null)
-  const [draggedList, setDraggedList] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const columnsContainerRef = useRef(null)
+  const navigate = useNavigate()
 
+  // Fetch lists and tasks when component mounts
   useEffect(() => {
-    // API: Fetch all columns
-    const fetchColumns = async () => {
+    const loadBoardData = async () => {
       try {
-        // const response = await fetch('/api/columns');
-        // const data = await response.json();
-        // setColumns(data);
+        setIsLoading(true)
 
-        // Placeholder data
-        setColumns([
-          { id: "col1", title: "To Do", order: 1 },
-          { id: "col2", title: "In Progress", order: 2 },
-          { id: "col3", title: "Done", order: 3 },
-        ])
-      } catch (error) {
-        console.error("Error fetching columns:", error)
+        // Fetch lists for this board
+        const listsData = await fetchLists(boardId)
+
+        // Sort lists by position
+        const sortedLists = listsData.sort((a, b) => a.position - b.position)
+        setLists(sortedLists)
+
+        // Fetch tasks for each list
+        const tasksData = await fetchTasks(boardId)
+
+        // Group tasks by listId
+        const tasksByListId = {}
+        tasksData.forEach((task) => {
+          if (!tasksByListId[task.listId]) {
+            tasksByListId[task.listId] = []
+          }
+          tasksByListId[task.listId].push(task)
+        })
+
+        // Sort tasks by position within each list
+        Object.keys(tasksByListId).forEach((listId) => {
+          tasksByListId[listId].sort((a, b) => a.position - b.position)
+        })
+
+        setTasksByList(tasksByListId)
+        setIsLoading(false)
+      } catch (err) {
+        setError("Failed to load board data")
+        setIsLoading(false)
+        console.error("Error loading board data:", err)
       }
     }
 
-    fetchColumns()
-  }, [])
+    if (boardId) {
+      loadBoardData()
+    }
+  }, [boardId])
 
-  useEffect(() => {
-    // API: Fetch tasks for each column
-    const fetchTasks = async () => {
-      try {
-        const tasksObj = {}
+  // Handle adding a new list
+  const handleAddList = async () => {
+    try {
+      // Calculate the next position
+      const nextPosition = lists.length > 0 ? Math.max(...lists.map((list) => list.position)) + 1 : 0
 
-        // For each column, fetch its tasks
-        // for (const column of columns) {
-        //   const response = await fetch(`/api/columns/${column.id}/tasks`);
-        //   const data = await response.json();
-        //   tasksObj[column.id] = data;
-        // }
-
-        // Placeholder data
-        tasksObj["col1"] = [
-          {
-            id: "t1",
-            title: "Research competitors",
-            description: "Analyze top 5 competitors",
-            columnId: "col1",
-            reminder: null,
-          },
-          {
-            id: "t2",
-            title: "Create wireframes",
-            description: "Design initial wireframes for homepage",
-            columnId: "col1",
-            reminder: "2023-05-20T10:00",
-          },
-        ]
-        tasksObj["col2"] = [
-          {
-            id: "t3",
-            title: "Implement login page",
-            description: "Create React components for login",
-            columnId: "col2",
-            reminder: null,
-          },
-        ]
-        tasksObj["col3"] = [
-          {
-            id: "t4",
-            title: "Setup project repo",
-            description: "Initialize Git repository",
-            columnId: "col3",
-            reminder: null,
-          },
-          {
-            id: "t5",
-            title: "Configure CI/CD",
-            description: "Setup GitHub Actions workflow",
-            columnId: "col3",
-            reminder: "2023-05-25T15:30",
-          },
-        ]
-
-        setTasks(tasksObj)
-      } catch (error) {
-        console.error("Error fetching tasks:", error)
+      // Create new list data
+      const newListData = {
+        title: "New List",
+        boardId,
+        position: nextPosition,
       }
-    }
 
-    if (columns.length > 0) {
-      fetchTasks()
-    }
-  }, [columns])
+      // Create the list in the backend
+      const createdList = await createList(newListData)
 
-  const handleAddColumn = () => {
-    setModalType("column")
-    setModalData({})
+      // Update the local state
+      setLists([...lists, createdList])
+      setTasksByList({
+        ...tasksByList,
+        [createdList._id]: [],
+      })
+
+      // Scroll to the new list
+      setTimeout(() => {
+        if (columnsContainerRef.current) {
+          columnsContainerRef.current.scrollLeft = columnsContainerRef.current.scrollWidth
+        }
+      }, 100)
+    } catch (err) {
+      setError("Failed to add new list")
+      console.error("Error adding new list:", err)
+    }
+  }
+
+  // Handle editing a list
+  const handleEditList = (list) => {
+    setModalType("list")
+    setModalData(list)
     setIsModalOpen(true)
   }
 
-  const handleEditColumn = (column) => {
-    setModalType("column")
-    setModalData(column)
-    setIsModalOpen(true)
-  }
-
-  const handleAddTask = (columnId) => {
+  // Handle adding a task to a list
+  const handleAddTask = (listId) => {
     setModalType("task")
-    setModalData({ columnId, description: "", reminder: null })
+    setModalData({
+      listId,
+      boardId,
+      description: "",
+      reminder: false,
+      position: tasksByList[listId] ? tasksByList[listId].length : 0,
+    })
     setIsModalOpen(true)
   }
 
+  // Handle editing a task
   const handleEditTask = (task) => {
     setModalType("task")
     setModalData(task)
     setIsModalOpen(true)
   }
 
+  // Handle adding a reminder to a task
   const handleAddReminder = (task) => {
     setModalType("reminder")
     setModalData(task)
     setIsModalOpen(true)
   }
 
+  // Handle saving modal data
   const handleSaveModal = async () => {
-    if (modalType === "column") {
-      if (modalData.id) {
-        // API: Update column details
-        // await fetch(`/api/columns/${modalData.id}`, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(modalData),
-        // });
+    try {
+      if (modalType === "list") {
+        if (modalData._id) {
+          // Update existing list
+          const updatedList = await updateList(modalData._id, {
+            title: modalData.title,
+          })
 
-        // Update locally
-        setColumns(columns.map((column) => (column.id === modalData.id ? { ...column, ...modalData } : column)))
-      } else {
-        // API: Add a new column
-        // const response = await fetch('/api/columns', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({ ...modalData, order: columns.length + 1 }),
-        // });
-        // const newColumn = await response.json();
-
-        // Add locally
-        const newColumn = {
-          id: `col-${Date.now()}`,
-          title: modalData.title || "New Column",
-          order: columns.length + 1,
+          // Update local state
+          setLists(lists.map((list) => (list._id === updatedList._id ? updatedList : list)))
         }
-        setColumns([...columns, newColumn])
-        setTasks({ ...tasks, [newColumn.id]: [] })
-      }
-    } else if (modalType === "task") {
-      const columnId = modalData.columnId
+      } else if (modalType === "task") {
+        if (modalData._id) {
+          // Update existing task
+          const updatedTask = await updateTask(modalData._id, {
+            title: modalData.title,
+            description: modalData.description,
+            reminder: modalData.reminder,
+            reminderTime: modalData.reminderTime,
+          })
 
-      if (modalData.id) {
-        // API: Update task details
-        // await fetch(`/api/tasks/${modalData.id}`, {
-        //   method: 'PUT',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(modalData),
-        // });
+          // Update local state
+          setTasksByList({
+            ...tasksByList,
+            [updatedTask.listId]: tasksByList[updatedTask.listId].map((task) =>
+              task._id === updatedTask._id ? updatedTask : task,
+            ),
+          })
+        } else {
+          // Create new task
+          const newTask = await createTask({
+            title: modalData.title || "New Task",
+            description: modalData.description || "",
+            boardId: modalData.boardId,
+            listId: modalData.listId,
+            position: modalData.position,
+            reminder: false,
+          })
 
-        // Update locally
-        setTasks({
-          ...tasks,
-          [columnId]: tasks[columnId].map((task) => (task.id === modalData.id ? { ...task, ...modalData } : task)),
-        })
-      } else {
-        // API: Add a new task
-        // const response = await fetch('/api/columns/${columnId}/tasks', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(modalData),
-        // });
-        // const newTask = await response.json();
-
-        // Add locally
-        const newTask = {
-          id: `task-${Date.now()}`,
-          title: modalData.title || "New Task",
-          description: modalData.description || "",
-          columnId,
-          reminder: modalData.reminder,
+          // Update local state
+          setTasksByList({
+            ...tasksByList,
+            [newTask.listId]: [...(tasksByList[newTask.listId] || []), newTask],
+          })
         }
-        setTasks({
-          ...tasks,
-          [columnId]: [...(tasks[columnId] || []), newTask],
-        })
+      } else if (modalType === "reminder") {
+        // Set reminder for task
+        if (modalData.reminderTime) {
+          const updatedTask = await updateTask(modalData._id, {
+            reminder: true,
+            reminderTime: modalData.reminderTime,
+          })
+
+          // Send email notification
+          await setTaskReminder(modalData._id)
+
+          // Update local state
+          setTasksByList({
+            ...tasksByList,
+            [updatedTask.listId]: tasksByList[updatedTask.listId].map((task) =>
+              task._id === updatedTask._id ? updatedTask : task,
+            ),
+          })
+        }
       }
-    } else if (modalType === "reminder") {
-      // Update task with reminder
-      const updatedTask = { ...modalData }
 
-      // API: Update task with reminder
-      // await fetch(`/api/tasks/${modalData.id}`, {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(updatedTask),
-      // });
-
-      // Update locally
-      setTasks({
-        ...tasks,
-        [updatedTask.columnId]: tasks[updatedTask.columnId].map((task) =>
-          task.id === updatedTask.id ? updatedTask : task,
-        ),
-      })
+      setIsModalOpen(false)
+    } catch (err) {
+      setError(`Failed to ${modalData._id ? "update" : "create"} ${modalType}`)
+      console.error(`Error ${modalData._id ? "updating" : "creating"} ${modalType}:`, err)
     }
-
-    setIsModalOpen(false)
   }
 
-  const handleDeleteColumn = async (columnId) => {
-    // API: Delete a column
-    // await fetch(`/api/columns/${columnId}`, {
-    //   method: 'DELETE'
-    // });
+  // Handle deleting a list
+  const handleDeleteList = async (listId) => {
+    try {
+      await deleteList(listId)
 
-    // Delete locally
-    setColumns(columns.filter((column) => column.id !== columnId))
+      // Update local state
+      setLists(lists.filter((list) => list._id !== listId))
 
-    // Remove tasks for this column
-    const newTasks = { ...tasks }
-    delete newTasks[columnId]
-    setTasks(newTasks)
+      // Remove tasks for this list
+      const newTasksByList = { ...tasksByList }
+      delete newTasksByList[listId]
+      setTasksByList(newTasksByList)
+    } catch (err) {
+      setError("Failed to delete list")
+      console.error("Error deleting list:", err)
+    }
   }
 
-  const handleDeleteTask = async (taskId, columnId) => {
-    // API: Delete a task
-    // await fetch(`/api/tasks/${taskId}`, {
-    //   method: 'DELETE'
-    // });
+  // Handle deleting a task
+  const handleDeleteTask = async (taskId, listId) => {
+    try {
+      await deleteTask(taskId)
 
-    // Delete locally
-    setTasks({
-      ...tasks,
-      [columnId]: tasks[columnId].filter((task) => task.id !== taskId),
-    })
+      // Update local state
+      setTasksByList({
+        ...tasksByList,
+        [listId]: tasksByList[listId].filter((task) => task._id !== taskId),
+      })
+    } catch (err) {
+      setError("Failed to delete task")
+      console.error("Error deleting task:", err)
+    }
   }
 
   // Drag and drop handlers for tasks
-  const handleDragTask = (e, task, fromColumnId) => {
-    e.stopPropagation() // Prevent column dragging when dragging a task
-    e.dataTransfer.setData("taskId", task.id)
-    e.dataTransfer.setData("fromColumnId", fromColumnId)
+  const handleDragTask = (e, task) => {
+    e.stopPropagation() // Prevent list dragging when dragging a task
+    e.dataTransfer.setData("taskId", task._id)
+    e.dataTransfer.setData("fromListId", task.listId)
   }
 
   const handleDragOver = (e) => {
     e.preventDefault()
   }
 
-  const handleDropTask = (e, toColumnId) => {
+  const handleDropTask = async (e, toListId) => {
     e.preventDefault()
 
     const taskId = e.dataTransfer.getData("taskId")
-    const fromColumnId = e.dataTransfer.getData("fromColumnId")
+    const fromListId = e.dataTransfer.getData("fromListId")
 
-    if (!taskId || fromColumnId === toColumnId) return
+    if (!taskId || fromListId === toListId) return
 
-    // Find the task in the source column
-    const taskToMove = tasks[fromColumnId]?.find((task) => task.id === taskId)
+    try {
+      // Find the task in the source list
+      const taskToMove = tasksByList[fromListId]?.find((task) => task._id === taskId)
 
-    if (!taskToMove) return
+      if (!taskToMove) return
 
-    // Create updated task with new columnId
-    const updatedTask = { ...taskToMove, columnId: toColumnId }
+      // Calculate new position in target list
+      const newPosition = tasksByList[toListId] ? tasksByList[toListId].length : 0
 
-    // API: Update task's columnId
-    // await fetch(`/api/tasks/${taskId}`, {
-    //   method: 'PUT',
-    //   headers: { 'Content-Type': 'application/json' },
-    //   body: JSON.stringify(updatedTask),
-    // });
+      // Update task with new listId and position
+      const updatedTask = await updateTask(taskId, {
+        listId: toListId,
+        position: newPosition,
+      })
 
-    // Update locally
-    setTasks({
-      ...tasks,
-      [fromColumnId]: tasks[fromColumnId].filter((task) => task.id !== taskId),
-      [toColumnId]: [...(tasks[toColumnId] || []), updatedTask],
-    })
+      // Update local state
+      setTasksByList({
+        ...tasksByList,
+        [fromListId]: tasksByList[fromListId].filter((task) => task._id !== taskId),
+        [toListId]: [...(tasksByList[toListId] || []), { ...taskToMove, listId: toListId, position: newPosition }],
+      })
+    } catch (err) {
+      setError("Failed to move task")
+      console.error("Error moving task:", err)
+    }
   }
 
-  // Drag and drop handlers for columns
-  const handleDragColumn = (e, columnId) => {
-    e.dataTransfer.setData("columnId", columnId)
+  // Drag and drop handlers for lists
+  const handleDragList = (e, list) => {
+    e.dataTransfer.setData("listId", list._id)
   }
 
-  const handleDropColumn = (e, dropColumnId) => {
+  const handleDropList = async (e, dropList) => {
     e.preventDefault()
 
-    const draggedColumnId = e.dataTransfer.getData("columnId")
+    const draggedListId = e.dataTransfer.getData("listId")
 
-    if (!draggedColumnId || draggedColumnId === dropColumnId) return
+    if (!draggedListId || draggedListId === dropList._id) return
 
-    // Find the indices of the dragged and drop columns
-    const draggedIndex = columns.findIndex((col) => col.id === draggedColumnId)
-    const dropIndex = columns.findIndex((col) => col.id === dropColumnId)
+    try {
+      // Find the indices of the dragged and drop lists
+      const draggedIndex = lists.findIndex((list) => list._id === draggedListId)
+      const dropIndex = lists.findIndex((list) => list._id === dropList._id)
 
-    if (draggedIndex === -1 || dropIndex === -1) return
+      if (draggedIndex === -1 || dropIndex === -1) return
 
-    // Create a copy of the columns array
-    const updatedColumns = [...columns]
+      // Create a copy of the lists array
+      const updatedLists = [...lists]
 
-    // Remove the dragged column
-    const [draggedColumn] = updatedColumns.splice(draggedIndex, 1)
+      // Remove the dragged list
+      const [draggedList] = updatedLists.splice(draggedIndex, 1)
 
-    // Insert it at the drop position
-    updatedColumns.splice(dropIndex, 0, draggedColumn)
+      // Insert it at the drop position
+      updatedLists.splice(dropIndex, 0, draggedList)
 
-    // Update the order property for all columns
-    const reorderedColumns = updatedColumns.map((col, index) => ({
-      ...col,
-      order: index + 1,
-    }))
+      // Update the position property for all lists
+      const reorderedLists = updatedLists.map((list, index) => ({
+        ...list,
+        position: index,
+      }))
 
-    // API: Update column orders
-    // const updatePromises = reorderedColumns.map(column =>
-    //   fetch(`/api/columns/${column.id}`, {
-    //     method: 'PUT',
-    //     headers: { 'Content-Type': 'application/json' },
-    //     body: JSON.stringify(column),
-    //   })
-    // );
-    // await Promise.all(updatePromises);
+      // Update positions in the backend
+      const updatePromises = reorderedLists.map((list) => updateList(list._id, { position: list.position }))
+      await Promise.all(updatePromises)
 
-    // Update locally
-    setColumns(reorderedColumns)
+      // Update local state
+      setLists(reorderedLists)
+    } catch (err) {
+      setError("Failed to reorder lists")
+      console.error("Error reordering lists:", err)
+    }
   }
 
-  // Sort columns by order
-  const sortedColumns = [...columns].sort((a, b) => a.order - b.order)
+  // Handle going back to boards view
+  const handleBack = () => {
+    navigate(`/organization/${organizationId}/boards`)
+  }
+
+  if (isLoading) {
+    return <div className="loading-spinner">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="error-message">{error}</div>
+  }
 
   return (
     <div className="kanban-board" style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}}>
-      <div className="kanban-header">
-        <h1>Kanban Board</h1>
-        <button className="add-column-btn" onClick={handleAddColumn}>
-          + Add Column
+      <div className="kanban-topbar">
+        <button className="back-button" onClick={handleBack}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M19 12H5M12 19l-7-7 7-7" />
+          </svg>
+          <span>Back to Boards</span>
         </button>
+        <h1>{boardTitle || "Kanban Board"}</h1>
       </div>
 
-      <div className="columns-container">
-        {sortedColumns.map((column) => (
+      <div className="columns-container" ref={columnsContainerRef}>
+        {lists.map((list) => (
           <div
-            key={column.id}
+            key={list._id}
             className="column"
             draggable
-            onDragStart={(e) => handleDragColumn(e, column.id)}
+            onDragStart={(e) => handleDragList(e, list)}
             onDragOver={handleDragOver}
-            onDrop={(e) => handleDropColumn(e, column.id)}
+            onDrop={(e) => handleDropList(e, list)}
           >
             <div className="column-header">
-              <h2>{column.title}</h2>
+              <h2>{list.title}</h2>
               <div className="column-actions">
-                <button onClick={() => handleEditColumn(column)} className="edit-btn">
-                  Edit
+                <button onClick={() => handleEditList(list)} className="edit-btn">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                  </svg>
                 </button>
-                <button onClick={() => handleDeleteColumn(column.id)} className="delete-btn">
-                  Delete
+                <button onClick={() => handleDeleteList(list._id)} className="delete-btn">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    <line x1="10" y1="11" x2="10" y2="17" />
+                    <line x1="14" y1="11" x2="14" y2="17" />
+                  </svg>
                 </button>
               </div>
             </div>
 
-            <div className="tasks-container" onDragOver={handleDragOver} onDrop={(e) => handleDropTask(e, column.id)}>
-              {tasks[column.id]?.map((task) => (
-                <div key={task.id} className="task" draggable onDragStart={(e) => handleDragTask(e, task, column.id)}>
+            <div className="tasks-container" onDragOver={handleDragOver} onDrop={(e) => handleDropTask(e, list._id)}>
+              {tasksByList[list._id]?.map((task) => (
+                <div key={task._id} className="task" draggable onDragStart={(e) => handleDragTask(e, task)}>
                   <div className="task-header">
                     <h3>{task.title}</h3>
                     <div className="task-actions">
                       <button onClick={() => handleEditTask(task)} className="edit-btn">
-                        Edit
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
                       </button>
                       <button onClick={() => handleAddReminder(task)} className="reminder-btn">
-                        {task.reminder ? "Edit Reminder" : "Add Reminder"}
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                          <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg>
                       </button>
-                      <button onClick={() => handleDeleteTask(task.id, column.id)} className="delete-btn">
-                        Delete
+                      <button onClick={() => handleDeleteTask(task._id, list._id)} className="delete-btn">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                          <line x1="10" y1="11" x2="10" y2="17" />
+                          <line x1="14" y1="11" x2="14" y2="17" />
+                        </svg>
                       </button>
                     </div>
                   </div>
@@ -395,17 +485,52 @@ const KanbanBoard = ({ backgroundImage }) => {
                   {task.reminder && (
                     <div className="task-reminder">
                       <span className="reminder-icon">⏰</span>
-                      <span>{new Date(task.reminder).toLocaleString()}</span>
+                      <span>{new Date(task.reminderTime).toLocaleString()}</span>
                     </div>
                   )}
                 </div>
               ))}
-              <button className="add-task-btn" onClick={() => handleAddTask(column.id)}>
-                + Add Task
+              <button className="add-task-btn" onClick={() => handleAddTask(list._id)}>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Task
               </button>
             </div>
           </div>
         ))}
+
+        {/* Add List Button */}
+        <div className="add-list-column">
+          <button className="add-list-btn" onClick={handleAddList}>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            <span>Add List</span>
+          </button>
+        </div>
       </div>
 
       {isModalOpen && (
@@ -413,15 +538,15 @@ const KanbanBoard = ({ backgroundImage }) => {
           <div className="modal">
             <div className="modal-header">
               <h2>
-                {modalData.id ? "Edit" : "Add"}{" "}
-                {modalType === "column" ? "Column" : modalType === "task" ? "Task" : "Reminder"}
+                {modalData._id ? "Edit" : "Add"}{" "}
+                {modalType === "list" ? "List" : modalType === "task" ? "Task" : "Reminder"}
               </h2>
               <button className="close-btn" onClick={() => setIsModalOpen(false)}>
                 ×
               </button>
             </div>
             <div className="modal-body">
-              {(modalType === "column" || modalType === "task") && (
+              {(modalType === "list" || modalType === "task") && (
                 <div className="form-group">
                   <label>Title</label>
                   <input
@@ -449,13 +574,13 @@ const KanbanBoard = ({ backgroundImage }) => {
                   <label>Reminder (optional)</label>
                   <input
                     type="datetime-local"
-                    value={modalData.reminder || ""}
-                    onChange={(e) => setModalData({ ...modalData, reminder: e.target.value })}
+                    value={modalData.reminderTime || ""}
+                    onChange={(e) => setModalData({ ...modalData, reminderTime: e.target.value })}
                   />
-                  {modalData.reminder && (
+                  {modalData.reminderTime && (
                     <button
                       className="clear-reminder-btn"
-                      onClick={() => setModalData({ ...modalData, reminder: null })}
+                      onClick={() => setModalData({ ...modalData, reminderTime: null, reminder: false })}
                     >
                       Clear Reminder
                     </button>
