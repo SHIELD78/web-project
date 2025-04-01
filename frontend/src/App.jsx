@@ -29,7 +29,7 @@ function App() {
         <Route path="/activitylog/organization/:orgId" element={<ActivityLogPage />} />
         <Route path="/activitylog/board/:boardId" element={<ActivityLogPage />} />
         <Route path="/activitylog/task/:taskId" element={<ActivityLogPage />} />
-        <Route path="/board/:boardId" element={<BoardPage />} />
+        <Route path="/board/:boardId" element={<KanbanBoard/>} />
         <Route path="/task/:taskId" element={<TaskPage />} />
       </Routes>
     </Router>

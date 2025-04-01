@@ -19,4 +19,28 @@
     background: white;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
+  .go-to-dashboard-button {
+    background-color: #007bff; /* Primary blue color */
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 20px;
+  }
   
+  .go-to-dashboard-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+    transform: translateY(-2px); /* Slightly lift the button on hover */
+  }
+  
+  .go-to-dashboard-button:disabled {
+    background-color: #c0c0c0; /* Light gray color when disabled */
+    cursor: not-allowed;
+  }
+  
+  .go-to-dashboard-button:focus {
+    outline: none; /* Remove focus outline */
+  }

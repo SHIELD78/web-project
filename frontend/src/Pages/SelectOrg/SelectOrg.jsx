@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { OrganizationSwitcher, useOrganization, useOrganizationList } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import "./SelectOrg.css";
@@ -8,6 +8,8 @@ const SelectOrgPage = () => {
   const { isLoaded, organizationList } = useOrganizationList();
   const { organization } = useOrganization(); // Track selected org
 
+  const [selectedOrg, setSelectedOrg] = useState(null);
+
   // Auto-redirect if only one org exists
   useEffect(() => {
     if (isLoaded && organizationList?.length === 1) {
@@ -15,12 +17,21 @@ const SelectOrgPage = () => {
     }
   }, [isLoaded, organizationList, navigate]);
 
-  // Redirect when user selects an organization
+  // Handle organization selection
   useEffect(() => {
     if (organization) {
-      navigate(`/dashboard?orgId=${organization.id}`);
+      setSelectedOrg(organization);
     }
-  }, [organization, navigate]);
+  }, [organization]);
+
+  // Redirect when user clicks "Go to Dashboard"
+  const handleGoToDashboard = () => {
+    if (selectedOrg) {
+      navigate(`/dashboard?orgId=${selectedOrg.id}`);
+    } else {
+      alert("Please select an organization first.");
+    }
+  };
 
   if (!isLoaded) return <p>Loading...</p>;
 
@@ -29,6 +40,15 @@ const SelectOrgPage = () => {
       <h1>Select an Organization</h1>
       <div className="org-switcher">
         <OrganizationSwitcher />
+      </div>
+      <div className="action-container">
+        <button
+          className="go-to-dashboard-button"
+          onClick={handleGoToDashboard}
+          disabled={!selectedOrg} // Disable button if no organization is selected
+        >
+          Go to Dashboard
+        </button>
       </div>
     </div>
   );

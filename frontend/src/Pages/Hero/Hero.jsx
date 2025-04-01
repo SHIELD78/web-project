@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react"
 import "./Hero.css"
+import { Navigate, useNavigate } from "react-router-dom"
 
 const HeroPage = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [activeSection, setActiveSection] = useState("home")
-
+  const navigate = useNavigate()
   // Handle scroll events
   useEffect(() => {
     const handleScroll = () => {
@@ -161,10 +162,10 @@ const HeroPage = () => {
             </ul>
 
             <div className="nav-buttons">
-              <button className="btn btn-secondary" onClick={(e) => handleButtonClick(e, "sign-in")}>
+              <button className="btn btn-secondary" onClick={(e) => navigate("/signin")}>
                 Sign In
               </button>
-              <button className="btn btn-primary" onClick={(e) => handleButtonClick(e, "get-started")}>
+              <button className="btn btn-primary" onClick={(e) => navigate("/signin")}>
                 Get Started
               </button>
             </div>
@@ -193,7 +194,7 @@ const HeroPage = () => {
               and achieve success together.
             </p>
             <div className="hero-buttons">
-              <button className="btn btn-primary btn-large" onClick={(e) => handleButtonClick(e, "start-free")}>
+              <button className="btn btn-primary btn-large" onClick={(e) => navigate("/signin")}>
                 Start for Free
                 <div className="btn-shine"></div>
               </button>
@@ -361,7 +362,7 @@ const HeroPage = () => {
                     <span className="check-icon"></span> Email support
                   </li>
                 </ul>
-                <button className="btn btn-outline btn-full" onClick={(e) => handleButtonClick(e, "starter-plan")}>
+                <button className="btn btn-outline btn-full" onClick={(e) => navigate("/signin")}>
                   Get Started
                 </button>
               </div>
@@ -397,7 +398,7 @@ const HeroPage = () => {
                     <span className="check-icon"></span> Analytics dashboard
                   </li>
                 </ul>
-                <button className="btn btn-primary btn-full" onClick={(e) => handleButtonClick(e, "professional-plan")}>
+                <button className="btn btn-primary btn-full" onClick={(e) => navigate("/signin")}>
                   Get Started
                 </button>
               </div>

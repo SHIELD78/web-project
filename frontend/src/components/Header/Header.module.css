@@ -1,125 +1,193 @@
+/* Fixed Header */
 .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0 var(--spacing-lg);
-    height: 64px;
-    background-color: var(--surface);
-    border-bottom: 1px solid var(--border);
-  }
-  
-  .leftSection,
-  .rightSection {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-md);
-  }
-  
-  .menuButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-md);
-  }
-  
-  .menuButton:hover {
-    background-color: var(--surface-light);
-    color: var(--text-primary);
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    font-weight: bold;
-    font-size: 1.2rem;
-  }
-  
-  .logoIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-    border-radius: var(--radius-sm);
-    color: white;
-    font-weight: bold;
-  }
-  
-  .logoText {
-    color: var(--text-primary);
-  }
-  
-  .workspaceSelector {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    padding: var(--spacing-sm) var(--spacing-md);
-    background-color: var(--surface-light);
-    border-radius: var(--radius-md);
-    cursor: pointer;
-    position: relative;
-    color: var(--text-primary);
-  }
-  
-  .workspaceSelector:hover {
-    background-color: var(--surface-lighter);
-  }
-  
-  .workspaceIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    border-radius: var(--radius-sm);
-    color: white;
-    font-weight: bold;
-  }
-  
-  .workspaceMenu {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 220px;
-    background-color: var(--surface);
-    border-radius: var(--radius-md);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--border);
-  }
-  
-  .workspaceOption {
-    padding: var(--spacing-sm) var(--spacing-md);
-    cursor: pointer;
-    transition: background 0.2s ease;
-    color: var(--text-primary);
-  }
-  
-  .workspaceOption:hover {
-    background-color: var(--surface-light);
-    color: var(--text-secondary);
-  }
-  
-  .userProfile {
-    cursor: pointer;
-  }
-  
-  .avatar {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    background-color: var(--primary);
-    border-radius: 50%;
-    color: white;
-    font-weight: bold;
-  }
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 var(--spacing-lg);
+  height: 64px;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensure it's above all other content */
+}
+
+/* Left and Right Sections of the Header */
+.leftSection,
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+/* Menu Button */
+.menuButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+}
+
+.menuButton:hover {
+  background-color: var(--surface-light);
+  color: var(--text-primary);
+}
+
+/* Logo */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.logoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+  border-radius: var(--radius-sm);
+  color: white;
+  font-weight: bold;
+}
+
+.logoText {
+  color: var(--text-primary);
+}
+
+/* Workspace Selector */
+.workspaceSelector {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--surface-light);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  position: relative;
+  color: var(--text-primary);
+}
+
+.workspaceSelector:hover {
+  background-color: var(--surface-lighter);
+}
+
+/* Workspace Icon */
+.workspaceIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  color: white;
+  font-weight: bold;
+}
+
+/* Workspace Menu */
+.workspaceMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 220px;
+  background-color: var(--surface);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border);
+}
+
+/* Workspace Option */
+.workspaceOption {
+  padding: var(--spacing-sm) var(--spacing-md);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  color: var(--text-primary);
+}
+
+.workspaceOption:hover {
+  background-color: var(--surface-light);
+  color: var(--text-secondary);
+}
+
+/* User Profile */
+.userProfile {
+  cursor: pointer;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--primary);
+  border-radius: 50%;
+  color: white;
+  font-weight: bold;
+}
+
+/* Adjust the content to account for the fixed header */
+.main-content {
+  margin-top: 64px; /* This ensures that the content does not overlap with the fixed header */
+  padding: 20px;
+}
+
+.workspaceOptionsMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #1e1e2e;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  margin-top: 5px;
+  width: 200px;
+}
+
+.workspaceOption {
+  padding: 10px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.workspaceOption:hover {
+  background-color: #6c5ce7;
+}
+
+.userMenu {
+  position: absolute;
+  right: 20px;
+  top: 50px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+
+.signOutButton {
+  background: #d63031;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.signOutButton:hover {
+  background: #e74c3c;
+}
