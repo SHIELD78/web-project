@@ -24,11 +24,12 @@ const transporter = nodemailer.createTransport({
 });
 
 // Task Routes
-router.get('/tasks', async (req, res) => {
+router.get('/task', async (req, res) => {
   const { listId } = req.query;
   if (!listId) return res.status(400).json({ error: 'listId is required' });
-
+  console.log("Fetching tasks for listId:", listId);  // Log the listId being fetched
   const tasks = await Task.find({ listId });
+  console.log("Tasks found:", tasks);  // Log the tasks found for the listId
   if (!tasks || tasks.length === 0) return res.status(404).json({ error: 'No tasks found for this list' });
 
   res.json(tasks);
@@ -66,6 +67,20 @@ router.delete('/tasks/:taskId', async (req, res) => {
 });
 
 // List Routes
+// List Routes
+router.get('/lists', async (req, res) => {
+  const { boardId } = req.query;  // boardId should be passed as a query parameter
+  if (!boardId) return res.status(400).json({ error: 'boardId is required' });
+  console.log("Fetching lists for boardId:", boardId);  // Log the boardId being fetched
+  try {
+    const lists = await List.find({ boardId }).sort({ position: 1 });  // Fetch lists based on boardId and sorted by position
+    if (!lists || lists.length === 0) return res.status(404).json({ error: 'No lists found for this board' });
+    res.json(lists);  // Respond with the lists found
+  } catch (error) {
+    console.error("Error fetching lists:", error);
+    res.status(500).json({ error: 'Failed to fetch lists' });
+  }
+});
 router.post('/lists', async (req, res) => {
   const { title, boardId, position } = req.body;
   const list = new List({ title, boardId, position });
