@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import SignUpPage from "./Pages/SignUp/SignUp";
 import  HeroPage from "./Pages/Hero/Hero";
 import DashboardPage from "./Pages/Dashboard/Dashboardmain";
+import KanbanBoard from "./components/kanbanBoard/kanban";
 
 import SettingsPage from "./Pages/Setting/Setting";
 import SignInPage from "./Pages/SignIn/SignIn";
@@ -18,6 +19,8 @@ function App() {
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/" element={<HeroPage />} />
         <Route path="/dashboard" element={<DashboardPage />} />
+        <Route path='/kanbanboard'element={<KanbanBoard/>}/>
+
 
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/signin" element={<SignInPage />} />
