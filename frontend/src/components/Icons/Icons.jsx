@@ -168,5 +168,20 @@ export function PlusIcon() {
       </svg>
     )
   }
+
+
+  export function DashboardIcon() {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width="24"
+        height="24"
+        fill="currentColor"
+      >
+        <path d="M3 13h8V3H3v10zm10 8h8V11h-8v10zm-10 0h8v-6H3v6zm10-18v6h8V3h-8z" />
+      </svg>
+    );
+  }
   
   
