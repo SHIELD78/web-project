@@ -632,7 +632,7 @@
     display: inline-block;
     padding: 0.5rem 1rem;
     background-color: var(--primary-light);
-    color: var(--primary);
+    color: white;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 600;
@@ -684,7 +684,7 @@
     width: 60px;
     height: 60px;
     border-radius: 12px;
-    background-color: var(--primary-light);
+    background-color: white;
     margin-bottom: 1.5rem;
     background-repeat: no-repeat;
     background-position: center;
@@ -982,7 +982,7 @@
     width: 40px;
     height: 40px;
     border-radius: 8px;
-    background-color: var(--primary-light);
+    background-color: white;
     background-repeat: no-repeat;
     background-position: center;
     background-size: 20px;

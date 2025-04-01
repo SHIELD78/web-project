@@ -1,46 +1,152 @@
 html, body {
-    margin: 0;
-    padding: 0;
-    overflow: hidden; /* Prevents scrolling */
-    height: 100vh; /* Ensures full viewport height */
-    width: 100vw; /* Ensures full viewport width */
-  }
-  
-  .signup-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    width: 100vw;
-  }
-  
-  .image-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #cac7c7;
-    height: 100vh; /* Ensures proper height */
-   /* Allows precise adjustments */
-    
-  }
-  
-  .image-section img {
-    max-width: 95%;
-    height: auto;
-    border-radius: 10px;
-    box-shadow: 10px;
-    position: relative;
-    top: -12px;
-    left: 110px; /* Moves image slightly right */
-  }
-  
-  .signup-section {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: rgb(255, 255, 255);
-    min-height: 100vh; /* Matches height with image section */
-  }
-  
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevents scrolling */
+  height: 100vh; /* Ensures full viewport height */
+  width: 100vw; /* Ensures full viewport width */
+}
+
+.signup-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100vw;
+}
+
+.image-section {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  background-color: #1e2139;
+  height: 100vh;
+}
+
+.image-section img {
+  max-width: 90%; /* Ensures responsiveness */
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 10px;
+  position: relative;
+  left: 0; /* Remove offset */
+  top: 0; /* Remove vertical shift */
+}
+
+
+.signup-section {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #141625; /* Changed from white to Background */
+  min-height: 100vh; /* Matches height with image section */
+}
+
+/* Sign-in card styling */
+.signin-card {
+  background-color: #1e2139; /* Background Light color */
+  border-radius: 10px;
+  padding: 2rem;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+}
+
+.signin-card h1 {
+  color: #ffffff; /* Text color (white) */
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.signin-card p {
+  color: #dfe3fa; /* Text Secondary color */
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.signin-card .divider {
+  color: #888eb0; /* Text Tertiary color */
+  text-align: center;
+  margin: 1.5rem 0;
+}
+
+.signin-card label {
+  color: #dfe3fa; /* Text Secondary color */
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.signin-card input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #252945; /* Border color */
+  border-radius: 4px;
+  background-color: #252945; /* Background Lighter color */
+  color: #ffffff; /* Text color */
+  margin-bottom: 1.5rem;
+}
+
+.signin-card input::placeholder {
+  color: #888eb0; /* Text Tertiary color */
+}
+
+.signin-card .google-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #252945; /* Border color */
+  border-radius: 4px;
+  background-color: #252945; /* Background Lighter color */
+  color: #ffffff; /* Text color */
+  cursor: pointer;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.signin-card .continue-button {
+  width: 100%;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 4px;
+  background-color: #7c5dfa; /* Primary color */
+  color: #ffffff; /* Text color */
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.signin-card .continue-button:hover {
+  background-color: #8f75ff; /* Primary Hover color */
+}
+
+.signin-card .signup-text {
+  text-align: center;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #252945; /* Border color */
+  color: #dfe3fa; /* Text Secondary color */
+}
+
+.signin-card .signup-link {
+  color: #7c5dfa; /* Primary color */
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.signin-card .footer {
+  text-align: center;
+  margin-top: 1.5rem;
+  color: #888eb0; /* Text Tertiary color */
+  font-size: 0.875rem;
+}
+
+.signin-card .development-mode {
+  color: #ff8f00; /* Warning color */
+  font-size: 0.875rem;
+}

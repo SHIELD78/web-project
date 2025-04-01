@@ -37,18 +37,20 @@ const SelectOrgPage = () => {
 
   return (
     <div className="select-org-container">
-      <h1>Select an Organization</h1>
-      <div className="org-switcher">
-        <OrganizationSwitcher />
-      </div>
-      <div className="action-container">
-        <button
-          className="go-to-dashboard-button"
-          onClick={handleGoToDashboard}
-          disabled={!selectedOrg} // Disable button if no organization is selected
-        >
-          Go to Dashboard
-        </button>
+      <div className="content-box">
+        <h1>Select an Organization</h1>
+        <div className="org-switcher">
+          <OrganizationSwitcher />
+        </div>
+        <div className="action-container">
+          <button
+            className="go-to-dashboard-button"
+            onClick={handleGoToDashboard}
+            disabled={!selectedOrg}
+          >
+            Go to Dashboard
+          </button>
+        </div>
       </div>
     </div>
   );
