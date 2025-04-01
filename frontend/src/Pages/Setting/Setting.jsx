@@ -1,7 +1,7 @@
 import React from "react";
 import { UserProfile ,OrganizationProfile} from "@clerk/clerk-react"; // Clerk UserProfile component
-import "../../components/Sidebar/Sidebar"
-import "../../components/Header/Header"
+import Sidebar from "../../components/Sidebar/Sidebar"
+import Header from "../../components/Header/Header"
 import "./Setting.css"; // Import styles
 
 const SettingsPage = () => {
@@ -9,10 +9,12 @@ const SettingsPage = () => {
         <div className="dashboard">
       <Sidebar />
       <div className="main-content">
-        <TopNav />
+        <Header />
         <div className="settings-container">
           <h1 className="settings-title">Settings</h1>
           <p className="settings-subtitle">Manage organization settings</p>
+
+          
 
           {/* Organization Profile - Fixed Height */}
           <div className="organization-profile">

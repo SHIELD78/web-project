@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState } from "react"
+import { useState, useEffect } from "react";
 import {
   PlusIcon,
   ChevronDownIcon,
@@ -9,159 +9,91 @@ import {
   ActivityIcon,
   SettingsIcon,
   BillingIcon,
-} from "../Icons/Icons.jsx"
-import { useClerk } from "@clerk/clerk-react";  // Clerk integration
-import styles from "./Sidebar.module.css"
+} from "../Icons/Icons.jsx";
+import { useClerk, useOrganization } from "@clerk/clerk-react";
+import styles from "./Sidebar.module.css";
 
-function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange, isOpen, setWorkspaces }) {
-  const [expandedWorkspaces, setExpandedWorkspaces] = useState({
-    [activeWorkspace]: true,
-  })
-  
-  const [activeNavItem, setActiveNavItem] = useState("boards")
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [newWorkspaceName, setNewWorkspaceName] = useState("")
+function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange, isOpen }) {
+  const { user } = useClerk();
+  const { organization } = useOrganization(); // Get selected organization
+  const [selectedOrg, setSelectedOrg] = useState(null);
+  const [expandedWorkspaces, setExpandedWorkspaces] = useState({ [activeWorkspace]: true });
 
-  // Clerk user management
-  const { user } = useClerk();  // Get the current user from Clerk
+  useEffect(() => {
+    if (organization) {
+      setSelectedOrg(organization); // Store the selected organization
+    }
+  }, [organization]);
 
-  // Toggle workspace expansion
   const toggleWorkspace = (workspaceId) => {
     setExpandedWorkspaces((prev) => ({
       ...prev,
       [workspaceId]: !prev[workspaceId],
-    }))
-  }
+    }));
+  };
 
-  // Open the workspace creation modal
   const handleAddWorkspace = () => {
-    setIsModalOpen(true)
-  }
+    window.location.href = "/selectorg";
+  };
 
-  // Create a new workspace
-  const handleCreateWorkspace = () => {
-    if (!user) {
-      alert("You must be logged in to create a workspace.");
-      return;
+  const handleOrganizationClick = () => {
+    if (organization) {
+      window.location.href = `/organization/${organization.id}`;
     }
+  };
 
-    if (newWorkspaceName.trim()) {
-      const newWorkspace = {
-        id: `ws${workspaces.length + 1}`,
-        name: newWorkspaceName,
-        remainingBoards: 3,
-        userId: user.id, // Associate workspace with the logged-in user
-      }
-
-      setWorkspaces((prev) => [...prev, newWorkspace])
-      setNewWorkspaceName("")
-      setIsModalOpen(false)
-
-      // Optionally, save this workspace to a backend or Clerk's database
-    } else {
-      alert("Please enter a workspace name")
-    }
-  }
-
-  // Close modal without creating a workspace
-  const handleModalClose = () => {
-    setIsModalOpen(false)
-    setNewWorkspaceName("")
-  }
-
-  // If sidebar is not open, return collapsed view
   if (!isOpen) {
-    return <div className={styles.sidebarCollapsed}></div>
+    return <div className={styles.sidebarCollapsed}></div>;
   }
 
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.workspacesHeader}>
-        <h2>Workspaces</h2>
+      <div className={styles.selectOrgContainer}>
+        <h2 className={styles.selectOrgHeader}>Select Organization</h2>
         <button className={styles.addButton} onClick={handleAddWorkspace}>
           <PlusIcon />
         </button>
+
+        {/* Display the selected organization */}
+        {selectedOrg && (
+          <div className={styles.organizationItem} onClick={handleOrganizationClick}>
+            <div className={styles.workspaceIcon} style={{ backgroundColor: "#0984e3" }}>
+              {selectedOrg.name.charAt(0)}
+            </div>
+            <span className={styles.workspaceName}>{selectedOrg.name}</span>
+          </div>
+        )}
       </div>
 
-      {/* Create Workspace Modal */}
-      {isModalOpen && (
-        <div className={styles.modal}>
-          <div className={styles.modalContent}>
-            <h3>Create New Workspace</h3>
-            <input
-              type="text"
-              value={newWorkspaceName}
-              onChange={(e) => setNewWorkspaceName(e.target.value)}
-              placeholder="Enter workspace name"
-            />
-            <button onClick={handleCreateWorkspace}>Create</button>
-            <button onClick={handleModalClose}>Cancel</button>
-          </div>
+      <div className={styles.workspacesHeader}>
+        <h2>Workspace</h2>
+      </div>
+
+      {/* Activity */}
+      <div className={styles.workspaceItem}>
+        <div className={styles.workspaceHeader}>
+          <ActivityIcon />
+          <span className={styles.workspaceName}>Activity</span>
         </div>
-      )}
+      </div>
 
-      <div className={styles.workspacesList}>
-        {workspaces.map((workspace) => (
-          <div key={workspace.id} className={styles.workspaceItem}>
-            <div
-              className={`${styles.workspaceHeader} ${activeWorkspace === workspace.id ? styles.active : ""}`}
-              onClick={() => {
-                onWorkspaceChange(workspace.id)
-                toggleWorkspace(workspace.id)
-              }}
-            >
-              <div className={styles.workspaceIcon} style={{ backgroundColor: "#6c5ce7" }}>
-                {workspace.name.charAt(0)}
-              </div>
-              <span className={styles.workspaceName}>{workspace.name}</span>
-              <button
-                className={styles.expandButton}
-                onClick={(e) => {
-                  e.stopPropagation()
-                  toggleWorkspace(workspace.id)
-                }}
-              >
-                {expandedWorkspaces[workspace.id] ? <ChevronDownIcon /> : <ChevronRightIcon />}
-              </button>
-            </div>
+      {/* Settings */}
+      <div className={styles.workspaceItem}>
+        <div className={styles.workspaceHeader}>
+          <SettingsIcon />
+          <span className={styles.workspaceName}>Settings</span>
+        </div>
+      </div>
 
-            {expandedWorkspaces[workspace.id] && activeWorkspace === workspace.id && (
-              <div className={styles.workspaceNav}>
-                <button
-                  className={`${styles.navItem} ${activeNavItem === "boards" ? styles.activeNavItem : ""}`}
-                  onClick={() => setActiveNavItem("boards")}
-                >
-                  <GridIcon />
-                  <span>Boards</span>
-                </button>
-                <button
-                  className={`${styles.navItem} ${activeNavItem === "activity" ? styles.activeNavItem : ""}`}
-                  onClick={() => setActiveNavItem("activity")}
-                >
-                  <ActivityIcon />
-                  <span>Activity</span>
-                </button>
-                <button
-                  className={`${styles.navItem} ${activeNavItem === "settings" ? styles.activeNavItem : ""}`}
-                  onClick={() => setActiveNavItem("settings")}
-                >
-                  <SettingsIcon />
-                  <span>Settings</span>
-                </button>
-                <button
-                  className={`${styles.navItem} ${activeNavItem === "billing" ? styles.activeNavItem : ""}`}
-                  onClick={() => setActiveNavItem("billing")}
-                >
-                  <BillingIcon />
-                  <span>Billing</span>
-                </button>
-              </div>
-            )}
-          </div>
-        ))}
+      {/* Tasks */}
+      <div className={styles.workspaceItem}>
+        <div className={styles.workspaceHeader}>
+          <GridIcon />
+          <span className={styles.workspaceName}>Tasks</span>
+        </div>
       </div>
     </aside>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;
