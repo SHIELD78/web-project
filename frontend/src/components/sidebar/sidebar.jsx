@@ -11,17 +11,16 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
   const [organizations, setOrganizations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
 
   useEffect(() => {
     async function fetchOrganizations() {
       setLoading(true);
       setError(null);
-      
+
       try {
         if (user && session) {
-          // Get the token from the session
           const token = await session.getToken();
-          
           if (token) {
             const response = await fetch("http://localhost:3000/api/organizations", {
               method: "GET",
@@ -30,12 +29,10 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
                 "Content-Type": "application/json"
               },
             });
-
             if (!response.ok) {
               const errorData = await response.json();
               throw new Error(errorData.error || "Failed to fetch organizations");
             }
-            
             const data = await response.json();
             setOrganizations(data);
           }
@@ -57,8 +54,8 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
     window.location.href = "/selectorg";
   };
 
-  const handleOrganizationClick = (org) => {
-    window.location.href = `/organization/${org.id}`;
+  const toggleDropdown = (orgId) => {
+    setOpenDropdown((prev) => (prev === orgId ? null : orgId));
   };
 
   return (
@@ -68,53 +65,58 @@ function Sidebar({ workspaces, activeWorkspace, onWorkspaceChange }) {
         <button className={styles.addButton} onClick={handleAddWorkspace}>
           <PlusIcon />
         </button>
-
-        {/* Organization Switcher from Clerk */}
         <OrganizationSwitcher />
-
-        {/* Display organizations */}
         {loading && <p>Loading organizations...</p>}
         {error && <p className={styles.errorText}>Error: {error}</p>}
-        
         {organizations.length > 0 ? (
           organizations.map((org) => (
-            <div
-              key={org.id}
-              className={styles.organizationItem}
-              onClick={() => handleOrganizationClick(org)}
-            >
-              <div className={styles.workspaceIcon} style={{ backgroundColor: "#0984e3" }}>
-                {org.name.charAt(0)}
+            <div key={org.id} className={styles.organizationItem}>
+              <div
+                className={styles.orgHeader}
+                onClick={() => toggleDropdown(org.id)}
+              >
+                <div className={styles.workspaceIcon} style={{ backgroundColor: "#0984e3" }}>
+                  {org.name.charAt(0)}
+                </div>
+                <span className={styles.workspaceName}>{org.name}</span>
               </div>
-              <span className={styles.workspaceName}>{org.name}</span>
+              {openDropdown === org.id && (
+                <div className={styles.dropdownMenu}>
+                  <div
+                    className={styles.dropdownItem}
+                    onClick={() => navigate(`/organization/${org.id}/activity`)}
+                  >
+                    <ActivityIcon /> Activity
+                  </div>
+                  <div
+                    className={styles.dropdownItem}
+                    onClick={() => navigate(`/organization/${org.id}/settings`)}
+                  >
+                    <SettingsIcon /> Settings
+                  </div>
+                </div>
+              )}
             </div>
           ))
-        ) : !loading && !error ? (
-          <p>No organizations found.</p>
-        ) : null}
+        ) : (
+          !loading && !error && <p>No organizations found.</p>
+        )}
       </div>
-
       <div className={styles.workspacesHeader}>
         <h2>Workspace</h2>
       </div>
-
-      {/* Activity */}
-      <div className={styles.workspaceItem} onClick={() => navigate('/ActivityLog')}>
+      <div className={styles.workspaceItem} onClick={() => navigate("/ActivityLog")}>
         <div className={styles.workspaceHeader}>
           <ActivityIcon />
           <span className={styles.workspaceName}>Activity</span>
         </div>
       </div>
-
-      {/* Settings */}
-      <div className={styles.workspaceItem} onClick={() => navigate('/settings')}>
+      <div className={styles.workspaceItem} onClick={() => navigate("/settings")}>
         <div className={styles.workspaceHeader}>
           <SettingsIcon />
           <span className={styles.workspaceName}>Settings</span>
         </div>
       </div>
-
-      {/* User Profile Section */}
       {user && (
         <div className={styles.userSection}>
           <div className={styles.userAvatar}>
