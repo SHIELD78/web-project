@@ -1,9 +1,27 @@
 import express from 'express';
-import Task from './models/Task';
-import List from './models/List';
-import { getAuth } from './utils/auth'; // Your authentication utility
+import Task from '../models/Task.js';
+import List from '../models/List.js';
+import Board from '../models/Board.js';
+import ActivityLog from '../models/ActivityLog.js';
+import nodemailer from 'nodemailer';
+
+
+import { clerkMiddleware, requireAuth, getAuth, createClerkClient } from '@clerk/express';
 
 const router = express.Router();
+const clerkClient = createClerkClient({ secretKey:'sk_test_rURx8R6IFHQWjf2Z5a5qkxzbNwdShb5bf4I4oWL7if' });
+router.use(clerkMiddleware({
+  publishableKey:'pk_test_YWRlcXVhdGUtbGxhbWEtMTEuY2xlcmsuYWNjb3VudHMuZGV2JA',
+  secretKey:'sk_test_rURx8R6IFHQWjf2Z5a5qkxzbNwdShb5bf4I4oWL7if'
+}));
+// Nodemailer setup
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'harshdalmia08@gmail.com',
+    pass: 'xcfi jaog qhso rtyx',
+  },
+});
 
 // Task Routes
 router.get('/tasks', async (req, res) => {
@@ -69,4 +87,84 @@ router.delete('/lists/:listId', async (req, res) => {
   res.json({ message: 'List and its tasks deleted' });
 });
 
+// Board Routes
+router.post('/boards',  async (req, res) => {
+  const { title,  organizationId, imageUrl } = req.body;
+  const { userId } = getAuth(req);
+  const board = new Board({ title, owner:userId, organizationId, imageUrl, members: [userId] });
+  await board.save();
+  res.json(board);
+});
+
+router.get('/boards/:organizationId', async (req, res) => {
+  const boards = await Board.find({ organizationId: req.params.organizationId });
+  res.json(boards);
+});
+
+router.delete('/boards/:boardId',  async (req, res) => {
+  const board = await Board.findByIdAndDelete(req.params.boardId);
+  if (!board) return res.status(404).json({ error: 'Board not found' });
+  res.json({ message: 'Board deleted' });
+});
+
+// Activity Log Routes
+// Fetch all activity logs for an organization
+router.get('/activity/organization/:organizationId',  async (req, res) => {
+  const organizationId = req.params.organizationId;
+    const logs = await ActivityLog.find({ organizationId }).sort({ timestamp: -1 });
+    res.json(logs);
+  });
+  
+  // Fetch activity logs for a specific board
+  router.get('/activity/board/:boardId',async (req, res) => {
+    const logs = await ActivityLog.find({ boardId: req.params.boardId }).sort({ timestamp: -1 });
+    res.json(logs);
+  });
+  
+  // Fetch activity logs for a specific task
+  router.get('/activity/task/:taskId',  async (req, res) => {
+    const logs = await ActivityLog.find({ taskId: req.params.taskId }).sort({ timestamp: -1 });
+    res.json(logs);
+  });
+  
+  // Fetch aggregated activity log data for charts (organization level)
+  router.get('/activity/organization/:organizationId/chart', async (req, res) => {
+    const logs = await ActivityLog.aggregate([
+      { $match: { organizationId: req.params.organizationId } },
+      { $group: { _id: "$action", count: { $sum: 1 } } },
+      { $sort: { count: -1 } }
+    ]);
+    
+    res.json(logs);
+  });
+  
+// Organization Routes
+
+router.get('/organizations', async (req, res) => {
+  try {
+    // Get the authenticated user ID
+    const { userId } = getAuth(req);
+    
+    if (!userId) {
+      return res.status(401).json({ error: 'Unauthorized: No authenticated user' });
+    }
+    
+    console.log("Authenticated userId:", userId);
+    
+    // Get user's organization memberships
+    const memberships = await clerkClient.users.getOrganizationMembershipList({
+      userId
+    });
+    console.log("Memberships:", memberships);
+    // Extract organization data - the response structure may be different
+    // based on your Clerk version
+    const organizations = memberships.data.map(membership => membership.organization);
+    
+    console.log("Organizations:", organizations);
+    res.json(organizations);
+  } catch (error) {
+    console.error('Error fetching organizations:', error);
+    res.status(500).json({ error: 'Error fetching organizations' });
+  }
+});
 export default router;
