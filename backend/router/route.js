@@ -24,6 +24,25 @@ const transporter = nodemailer.createTransport({
 });
 
 // Task Routes
+router.get('/tasks', async (req, res) => {
+  try {
+    const tasks = await Task.find().populate('listId', 'title').populate('boardId', 'title').populate('userId', 'firstName lastName'); // Populate list and board information
+    const groupedTasks = tasks.reduce((acc, task) => {
+      // Group tasks by listId
+      if (!acc[task.listId._id]) {
+        acc[task.listId._id] = { listId: task.listId, tasks: [] };
+      }
+      acc[task.listId._id].tasks.push(task);
+      return acc;
+    }, {});
+
+    const result = Object.values(groupedTasks); // Convert the grouped tasks to an array for easy response
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch tasks' });
+  }
+});
+
 router.post('/tasks', async (req, res) => {
   const { title, boardId, listId, description, position } = req.body;
   const { userId } = getAuth(req);
@@ -77,6 +96,10 @@ router.post('/tasks/:taskId/reminder', async (req, res) => {
     res.status(500).json({ error: 'Error sending reminder email' });
   }
 });
+
+
+
+
 router.get('/lists', async (req, res) => {
   const { boardId } = req.query; // Get boardId from query parameters
 
