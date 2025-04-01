@@ -1,5 +1,6 @@
 
-import { useState, useEffect } from "react"
+import { useState, useEffect,useRef} from "react"
+import { useNavigate,useParams } from 'react-router-dom';
 import "./kanban.css"
 import {
   fetchLists,
@@ -10,10 +11,10 @@ import {
   createTask,
   updateTask,
   deleteTask,
-  setTaskReminder,
+
 } from "./api.js"
 
-const KanbanBoard = ({ boardId, boardTitle, backgroundImage, organizationId }) => {
+const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
   const [lists, setLists] = useState([])
   const [tasksByList, setTasksByList] = useState({})
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -23,7 +24,7 @@ const KanbanBoard = ({ boardId, boardTitle, backgroundImage, organizationId }) =
   const [error, setError] = useState(null)
   const columnsContainerRef = useRef(null)
   const navigate = useNavigate()
-
+  const { boardId } = useParams();
   // Fetch lists and tasks when component mounts
   useEffect(() => {
     const loadBoardData = async () => {
