@@ -77,8 +77,22 @@ router.post('/tasks/:taskId/reminder', async (req, res) => {
     res.status(500).json({ error: 'Error sending reminder email' });
   }
 });
+router.get('/lists', async (req, res) => {
+  const { boardId } = req.query; // Get boardId from query parameters
 
-// List Routes
+  if (!boardId) {
+    return res.status(400).json({ error: 'Board ID is required' });
+  }
+
+  try {
+    const lists = await List.find({ boardId }).populate('boardId', 'title'); // Filter by boardId and populate board title
+    res.json(lists);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch lists' });
+  }
+});
+
+
 router.post('/lists', async (req, res) => {
   const { title, boardId, position } = req.body;
   const list = new List({ title, boardId, position });
