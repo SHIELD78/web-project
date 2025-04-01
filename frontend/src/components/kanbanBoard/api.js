@@ -37,9 +37,9 @@ export const deleteBoard = async (boardId) => {
 };
 
 // Task API functions
-export const fetchTasks = async (boardId) => {
+export const fetchTasks = async (listId) => {
   try {
-    const response = await axios.get(`${API_URL}/tasks?boardId=${boardId}`);
+    const response = await axios.get(`${API_URL}/tasks?listId=${listId}`);
     return response.data;
   } catch (error) {
     console.error("Error fetching tasks:", error);

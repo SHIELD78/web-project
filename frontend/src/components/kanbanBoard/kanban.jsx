@@ -30,31 +30,25 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
     const loadBoardData = async () => {
       try {
         setIsLoading(true)
-
+  
         // Fetch lists for this board
         const listsData = await fetchLists(boardId)
-
+  
         // Sort lists by position
         const sortedLists = listsData.sort((a, b) => a.position - b.position)
         setLists(sortedLists)
-
-        // Fetch tasks for each list
-        const tasksData = await fetchTasks(boardId)
-
-        // Group tasks by listId
+  
+        // Initialize an empty object to group tasks by listId
         const tasksByListId = {}
-        tasksData.forEach((task) => {
-          if (!tasksByListId[task.listId]) {
-            tasksByListId[task.listId] = []
-          }
-          tasksByListId[task.listId].push(task)
-        })
-
-        // Sort tasks by position within each list
-        Object.keys(tasksByListId).forEach((listId) => {
-          tasksByListId[listId].sort((a, b) => a.position - b.position)
-        })
-
+  
+        // Fetch tasks for each list (based on listId)
+        for (const list of sortedLists) {
+          const tasksData = await fetchTasks(list._id)
+  
+          // Store tasks in the object, grouped by listId
+          tasksByListId[list._id] = tasksData.sort((a, b) => a.position - b.position)
+        }
+  
         setTasksByList(tasksByListId)
         setIsLoading(false)
       } catch (err) {
@@ -63,12 +57,12 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
         console.error("Error loading board data:", err)
       }
     }
-
+  
     if (boardId) {
       loadBoardData()
     }
   }, [boardId])
-
+  
   // Handle adding a new list
   const handleAddList = async () => {
     try {
