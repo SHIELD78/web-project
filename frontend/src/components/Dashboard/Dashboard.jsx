@@ -5,7 +5,7 @@ import axios from "axios";
 import { useAuth } from "@clerk/clerk-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import Header from "../Header/Header.jsx";
-import Sidebar from "../Sidebar/Sidebar.jsx";
+import Sidebar from "../Sidebar/sidebar.jsx";
 import BoardsGrid from "../Boards/BoardsGrid.jsx";
 import styles from "./Dashboard.module.css";
 
