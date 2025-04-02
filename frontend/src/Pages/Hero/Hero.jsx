@@ -99,8 +99,8 @@ const HeroPage = () => {
         <nav className={`navbar ${isScrolled ? "scrolled" : ""}`}>
           <div className="navbar-container">
             <div className="logo">
-              <div className="logo-icon">TM</div>
-              <span className="logo-text">TaskMaster</span>
+              <div className="logo-icon">OR</div>
+              <span className="logo-text">Organizo</span>
             </div>
 
             <ul className={`nav-menu ${mobileMenuOpen ? "active" : ""}`}>
@@ -165,7 +165,7 @@ const HeroPage = () => {
               <button className="btn btn-secondary" onClick={(e) => navigate("/signin")}>
                 Sign In
               </button>
-              <button className="btn btn-primary" onClick={(e) => navigate("/signin")}>
+              <button className="btn btn-primary" onClick={(e) => navigate("/signin")}> 
                 Get Started
               </button>
             </div>
@@ -194,7 +194,7 @@ const HeroPage = () => {
               and achieve success together.
             </p>
             <div className="hero-buttons">
-              <button className="btn btn-primary btn-large" onClick={(e) => navigate("/signin")}>
+              <button className="btn btn-primary btn-large" onClick={(e) => navigate("/signup")}>
                 Start for Free
                 <div className="btn-shine"></div>
               </button>
@@ -362,7 +362,7 @@ const HeroPage = () => {
                     <span className="check-icon"></span> Email support
                   </li>
                 </ul>
-                <button className="btn btn-outline btn-full" onClick={(e) => navigate("/signin")}>
+                <button className="btn btn-outline btn-full" onClick={(e) => navigate("/signup")}>
                   Get Started
                 </button>
               </div>
@@ -398,7 +398,7 @@ const HeroPage = () => {
                     <span className="check-icon"></span> Analytics dashboard
                   </li>
                 </ul>
-                <button className="btn btn-primary btn-full" onClick={(e) => navigate("/signin")}>
+                <button className="btn btn-primary btn-full" onClick={(e) => navigate("/signup")}>
                   Get Started
                 </button>
               </div>

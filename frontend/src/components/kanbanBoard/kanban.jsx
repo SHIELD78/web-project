@@ -1,101 +1,92 @@
+"use client"
 
-import { useState, useEffect,useRef} from "react"
-import { useNavigate,useParams } from 'react-router-dom';
+import { useState, useRef, useEffect } from "react"
 import "./kanban.css"
-import {
-  fetchLists,
-  fetchTasks,
-  createList,
-  updateList,
-  deleteList,
-  createTask,
-  updateTask,
-  deleteTask,
+import {useNavigate} from "react-router-dom"
+const KanbanBoard = () => {
+  const navigate = useNavigate()
+  // State for lists, tasks, and modal
+  const [lists, setLists] = useState([
+    { id: "list1", title: "To Do", position: 0 },
+    { id: "list2", title: "In Progress", position: 1 },
+    { id: "list3", title: "Done", position: 2 },
+  ])
 
-} from "./api.js"
+  const [tasksByList, setTasksByList] = useState({
+    list1: [
+      {
+        id: "task1",
+        title: "Research competitors",
+        description: "Analyze top 5 competitors in the market",
+        listId: "list1",
+        reminder: false,
+      },
+      {
+        id: "task2",
+        title: "Create wireframes",
+        description: "Design initial wireframes for homepage",
+        listId: "list1",
+        reminder: true,
+        reminderTime: "2023-05-20T10:00",
+      },
+    ],
+    list2: [
+      {
+        id: "task3",
+        title: "Implement login page",
+        description: "Create React components for login",
+        listId: "list2",
+        reminder: false,
+      },
+    ],
+    list3: [
+      {
+        id: "task4",
+        title: "Setup project repo",
+        description: "Initialize Git repository",
+        listId: "list3",
+        reminder: false,
+      },
+      {
+        id: "task5",
+        title: "Configure CI/CD",
+        description: "Setup GitHub Actions workflow",
+        listId: "list3",
+        reminder: true,
+        reminderTime: "2023-05-25T15:30",
+      },
+    ],
+  })
 
-const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
-  const [lists, setLists] = useState([])
-  const [tasksByList, setTasksByList] = useState({})
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalType, setModalType] = useState("") // 'task', 'list', or 'reminder'
   const [modalData, setModalData] = useState({})
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const [isDraggingAddButton, setIsDraggingAddButton] = useState(false)
+  const [addButtonPosition, setAddButtonPosition] = useState({ x: 0, y: 0 })
+
   const columnsContainerRef = useRef(null)
-  const navigate = useNavigate()
-  const { boardId } = useParams();
-  // Fetch lists and tasks when component mounts
+  const addButtonRef = useRef(null)
+
+  // Scroll to the end when a new list is added
   useEffect(() => {
-    const loadBoardData = async () => {
-      try {
-        setIsLoading(true)
-  
-        // Fetch lists for this board
-        const listsData = await fetchLists(boardId)
-  
-        // Sort lists by position
-        const sortedLists = listsData.sort((a, b) => a.position - b.position)
-        setLists(sortedLists)
-  
-        // Initialize an empty object to group tasks by listId
-        const tasksByListId = {}
-  
-        // Fetch tasks for each list (based on listId)
-        for (const list of sortedLists) {
-          const tasksData = await fetchTasks(list._id)
-  
-          // Store tasks in the object, grouped by listId
-          tasksByListId[list._id] = tasksData.sort((a, b) => a.position - b.position)
-        }
-  
-        setTasksByList(tasksByListId)
-        setIsLoading(false)
-      } catch (err) {
-        setError("Failed to load board data")
-        setIsLoading(false)
-        console.error("Error loading board data:", err)
-      }
+    if (columnsContainerRef.current) {
+      columnsContainerRef.current.scrollLeft = columnsContainerRef.current.scrollWidth
     }
-  
-    if (boardId) {
-      loadBoardData()
-    }
-  }, [boardId])
-  
+  }, [lists.length])
+
   // Handle adding a new list
-  const handleAddList = async () => {
-    try {
-      // Calculate the next position
-      const nextPosition = lists.length > 0 ? Math.max(...lists.map((list) => list.position)) + 1 : 0
-
-      // Create new list data
-      const newListData = {
-        title: "New List",
-        boardId,
-        position: nextPosition,
-      }
-
-      // Create the list in the backend
-      const createdList = await createList(newListData)
-
-      // Update the local state
-      setLists([...lists, createdList])
-      setTasksByList({
-        ...tasksByList,
-        [createdList._id]: [],
-      })
-
-      // Scroll to the new list
-      setTimeout(() => {
-        if (columnsContainerRef.current) {
-          columnsContainerRef.current.scrollLeft = columnsContainerRef.current.scrollWidth
-        }
-      }, 100)
-    } catch (err) {
-      setError("Failed to add new list")
-      console.error("Error adding new list:", err)
+  const handleAddList = () => {
+    const newList = {
+      id: `list-${Date.now()}`,
+      title: "New List",
+      position: lists.length,
     }
+
+    setLists([...lists, newList])
+    setTasksByList({
+      ...tasksByList,
+      [newList.id]: [],
+    })
   }
 
   // Handle editing a list
@@ -110,10 +101,8 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
     setModalType("task")
     setModalData({
       listId,
-      boardId,
       description: "",
       reminder: false,
-      position: tasksByList[listId] ? tasksByList[listId].length : 0,
     })
     setIsModalOpen(true)
   }
@@ -133,118 +122,76 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
   }
 
   // Handle saving modal data
-  const handleSaveModal = async () => {
-    try {
-      if (modalType === "list") {
-        if (modalData._id) {
-          // Update existing list
-          const updatedList = await updateList(modalData._id, {
-            title: modalData.title,
-          })
+  const handleSaveModal = () => {
+    if (modalType === "list") {
+      if (modalData.id) {
+        // Update existing list
+        setLists(lists.map((list) => (list.id === modalData.id ? { ...list, title: modalData.title } : list)))
+      }
+    } else if (modalType === "task") {
+      const listId = modalData.listId
 
-          // Update local state
-          setLists(lists.map((list) => (list._id === updatedList._id ? updatedList : list)))
+      if (modalData.id) {
+        // Update existing task
+        setTasksByList({
+          ...tasksByList,
+          [listId]: tasksByList[listId].map((task) => (task.id === modalData.id ? { ...task, ...modalData } : task)),
+        })
+      } else {
+        // Create new task
+        const newTask = {
+          id: `task-${Date.now()}`,
+          title: modalData.title || "New Task",
+          description: modalData.description || "",
+          listId,
+          reminder: false,
         }
-      } else if (modalType === "task") {
-        if (modalData._id) {
-          // Update existing task
-          const updatedTask = await updateTask(modalData._id, {
-            title: modalData.title,
-            description: modalData.description,
-            reminder: modalData.reminder,
-            reminderTime: modalData.reminderTime,
-          })
 
-          // Update local state
-          setTasksByList({
-            ...tasksByList,
-            [updatedTask.listId]: tasksByList[updatedTask.listId].map((task) =>
-              task._id === updatedTask._id ? updatedTask : task,
-            ),
-          })
-        } else {
-          // Create new task
-          const newTask = await createTask({
-            title: modalData.title || "New Task",
-            description: modalData.description || "",
-            boardId: modalData.boardId,
-            listId: modalData.listId,
-            position: modalData.position,
-            reminder: false,
-          })
-
-          // Update local state
-          setTasksByList({
-            ...tasksByList,
-            [newTask.listId]: [...(tasksByList[newTask.listId] || []), newTask],
-          })
-        }
-      } else if (modalType === "reminder") {
-        // Set reminder for task
-        if (modalData.reminderTime) {
-          const updatedTask = await updateTask(modalData._id, {
-            reminder: true,
-            reminderTime: modalData.reminderTime,
-          })
-
-          // Send email notification
-          await setTaskReminder(modalData._id)
-
-          // Update local state
-          setTasksByList({
-            ...tasksByList,
-            [updatedTask.listId]: tasksByList[updatedTask.listId].map((task) =>
-              task._id === updatedTask._id ? updatedTask : task,
-            ),
-          })
-        }
+        setTasksByList({
+          ...tasksByList,
+          [listId]: [...(tasksByList[listId] || []), newTask],
+        })
+      }
+    } else if (modalType === "reminder") {
+      // Set reminder for task
+      const updatedTask = {
+        ...modalData,
+        reminder: true,
       }
 
-      setIsModalOpen(false)
-    } catch (err) {
-      setError(`Failed to ${modalData._id ? "update" : "create"} ${modalType}`)
-      console.error(`Error ${modalData._id ? "updating" : "creating"} ${modalType}:`, err)
+      setTasksByList({
+        ...tasksByList,
+        [updatedTask.listId]: tasksByList[updatedTask.listId].map((task) =>
+          task.id === updatedTask.id ? updatedTask : task,
+        ),
+      })
     }
+
+    setIsModalOpen(false)
   }
 
   // Handle deleting a list
-  const handleDeleteList = async (listId) => {
-    try {
-      await deleteList(listId)
+  const handleDeleteList = (listId) => {
+    setLists(lists.filter((list) => list.id !== listId))
 
-      // Update local state
-      setLists(lists.filter((list) => list._id !== listId))
-
-      // Remove tasks for this list
-      const newTasksByList = { ...tasksByList }
-      delete newTasksByList[listId]
-      setTasksByList(newTasksByList)
-    } catch (err) {
-      setError("Failed to delete list")
-      console.error("Error deleting list:", err)
-    }
+    // Remove tasks for this list
+    const newTasksByList = { ...tasksByList }
+    delete newTasksByList[listId]
+    setTasksByList(newTasksByList)
   }
 
   // Handle deleting a task
-  const handleDeleteTask = async (taskId, listId) => {
-    try {
-      await deleteTask(taskId)
-
-      // Update local state
-      setTasksByList({
-        ...tasksByList,
-        [listId]: tasksByList[listId].filter((task) => task._id !== taskId),
-      })
-    } catch (err) {
-      setError("Failed to delete task")
-      console.error("Error deleting task:", err)
-    }
+  const handleDeleteTask = (taskId, listId) => {
+    setTasksByList({
+      ...tasksByList,
+      [listId]: tasksByList[listId].filter((task) => task.id !== taskId),
+    })
   }
 
   // Drag and drop handlers for tasks
   const handleDragTask = (e, task) => {
     e.stopPropagation() // Prevent list dragging when dragging a task
-    e.dataTransfer.setData("taskId", task._id)
+    e.dataTransfer.setData("taskId", task.id)
     e.dataTransfer.setData("fromListId", task.listId)
   }
 
@@ -252,7 +199,7 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
     e.preventDefault()
   }
 
-  const handleDropTask = async (e, toListId) => {
+  const handleDropTask = (e, toListId) => {
     e.preventDefault()
 
     const taskId = e.dataTransfer.getData("taskId")
@@ -260,94 +207,99 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
 
     if (!taskId || fromListId === toListId) return
 
-    try {
-      // Find the task in the source list
-      const taskToMove = tasksByList[fromListId]?.find((task) => task._id === taskId)
+    // Find the task in the source list
+    const taskToMove = tasksByList[fromListId]?.find((task) => task.id === taskId)
 
-      if (!taskToMove) return
+    if (!taskToMove) return
 
-      // Calculate new position in target list
-      const newPosition = tasksByList[toListId] ? tasksByList[toListId].length : 0
+    // Update task with new listId
+    const updatedTask = { ...taskToMove, listId: toListId }
 
-      // Update task with new listId and position
-      const updatedTask = await updateTask(taskId, {
-        listId: toListId,
-        position: newPosition,
-      })
-
-      // Update local state
-      setTasksByList({
-        ...tasksByList,
-        [fromListId]: tasksByList[fromListId].filter((task) => task._id !== taskId),
-        [toListId]: [...(tasksByList[toListId] || []), { ...taskToMove, listId: toListId, position: newPosition }],
-      })
-    } catch (err) {
-      setError("Failed to move task")
-      console.error("Error moving task:", err)
-    }
+    // Update local state
+    setTasksByList({
+      ...tasksByList,
+      [fromListId]: tasksByList[fromListId].filter((task) => task.id !== taskId),
+      [toListId]: [...(tasksByList[toListId] || []), updatedTask],
+    })
   }
 
   // Drag and drop handlers for lists
   const handleDragList = (e, list) => {
-    e.dataTransfer.setData("listId", list._id)
+    e.dataTransfer.setData("listId", list.id)
   }
 
-  const handleDropList = async (e, dropList) => {
+  const handleDropList = (e, dropList) => {
     e.preventDefault()
 
     const draggedListId = e.dataTransfer.getData("listId")
 
-    if (!draggedListId || draggedListId === dropList._id) return
+    if (!draggedListId || draggedListId === dropList.id) return
 
-    try {
-      // Find the indices of the dragged and drop lists
-      const draggedIndex = lists.findIndex((list) => list._id === draggedListId)
-      const dropIndex = lists.findIndex((list) => list._id === dropList._id)
+    // Find the indices of the dragged and drop lists
+    const draggedIndex = lists.findIndex((list) => list.id === draggedListId)
+    const dropIndex = lists.findIndex((list) => list.id === dropList.id)
 
-      if (draggedIndex === -1 || dropIndex === -1) return
+    if (draggedIndex === -1 || dropIndex === -1) return
 
-      // Create a copy of the lists array
-      const updatedLists = [...lists]
+    // Create a copy of the lists array
+    const updatedLists = [...lists]
 
-      // Remove the dragged list
-      const [draggedList] = updatedLists.splice(draggedIndex, 1)
+    // Remove the dragged list
+    const [draggedList] = updatedLists.splice(draggedIndex, 1)
 
-      // Insert it at the drop position
-      updatedLists.splice(dropIndex, 0, draggedList)
+    // Insert it at the drop position
+    updatedLists.splice(dropIndex, 0, draggedList)
 
-      // Update the position property for all lists
-      const reorderedLists = updatedLists.map((list, index) => ({
-        ...list,
-        position: index,
-      }))
+    // Update the position property for all lists
+    const reorderedLists = updatedLists.map((list, index) => ({
+      ...list,
+      position: index,
+    }))
 
-      // Update positions in the backend
-      const updatePromises = reorderedLists.map((list) => updateList(list._id, { position: list.position }))
-      await Promise.all(updatePromises)
+    // Update local state
+    setLists(reorderedLists)
+  }
 
-      // Update local state
-      setLists(reorderedLists)
-    } catch (err) {
-      setError("Failed to reorder lists")
-      console.error("Error reordering lists:", err)
+  // Handle dragging the add button
+  const handleAddButtonMouseDown = (e) => {
+    if (e.button !== 0) return // Only left mouse button
+
+    setIsDraggingAddButton(true)
+
+    const startX = e.clientX
+    const startY = e.clientY
+    const startLeft = addButtonRef.current.offsetLeft
+    const startTop = addButtonRef.current.offsetTop
+
+    const handleMouseMove = (e) => {
+      if (!isDraggingAddButton) return
+
+      const newX = startLeft + (e.clientX - startX)
+      const newY = startTop + (e.clientY - startY)
+
+      setAddButtonPosition({ x: newX, y: newY })
     }
+
+    const handleMouseUp = () => {
+      setIsDraggingAddButton(false)
+      document.removeEventListener("mousemove", handleMouseMove)
+      document.removeEventListener("mouseup", handleMouseUp)
+    }
+
+    document.addEventListener("mousemove", handleMouseMove)
+    document.addEventListener("mouseup", handleMouseUp)
   }
 
-  // Handle going back to boards view
+  // Handle going back
   const handleBack = () => {
-    navigate(`/organization/${organizationId}/boards`)
-  }
-
-  if (isLoading) {
-    return <div className="loading-spinner">Loading...</div>
-  }
-
-  if (error) {
-    return <div className="error-message">{error}</div>
+    
+    navigate("/dashboard");
+    // This would typically navigate back in a real app
+    
   }
 
   return (
-    <div className="kanban-board" style={backgroundImage ? { backgroundImage: `url(${backgroundImage})` } : {}}>
+    <div className="kanban-board">
       <div className="kanban-topbar">
         <button className="back-button" onClick={handleBack}>
           <svg
@@ -363,15 +315,31 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
           >
             <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          <span>Back to Boards</span>
+          <span>Back</span>
         </button>
-        <h1>{boardTitle || "Kanban Board"}</h1>
+
+        <button className="add-list-button" onClick={handleAddList}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+        </button>
       </div>
 
       <div className="columns-container" ref={columnsContainerRef}>
         {lists.map((list) => (
           <div
-            key={list._id}
+            key={list.id}
             className="column"
             draggable
             onDragStart={(e) => handleDragList(e, list)}
@@ -397,7 +365,7 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
                     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
                   </svg>
                 </button>
-                <button onClick={() => handleDeleteList(list._id)} className="delete-btn">
+                <button onClick={() => handleDeleteList(list.id)} className="delete-btn">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="16"
@@ -417,9 +385,9 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
               </div>
             </div>
 
-            <div className="tasks-container" onDragOver={handleDragOver} onDrop={(e) => handleDropTask(e, list._id)}>
-              {tasksByList[list._id]?.map((task) => (
-                <div key={task._id} className="task" draggable onDragStart={(e) => handleDragTask(e, task)}>
+            <div className="tasks-container" onDragOver={handleDragOver} onDrop={(e) => handleDropTask(e, list.id)}>
+              {tasksByList[list.id]?.map((task) => (
+                <div key={task.id} className="task" draggable onDragStart={(e) => handleDragTask(e, task)}>
                   <div className="task-header">
                     <h3>{task.title}</h3>
                     <div className="task-actions">
@@ -455,7 +423,7 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
                           <path d="M13.73 21a2 2 0 0 1-3.46 0" />
                         </svg>
                       </button>
-                      <button onClick={() => handleDeleteTask(task._id, list._id)} className="delete-btn">
+                      <button onClick={() => handleDeleteTask(task.id, list.id)} className="delete-btn">
                         <svg
                           xmlns="http://www.w3.org/2000/svg"
                           width="14"
@@ -483,7 +451,7 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
                   )}
                 </div>
               ))}
-              <button className="add-task-btn" onClick={() => handleAddTask(list._id)}>
+              <button className="add-task-btn" onClick={() => handleAddTask(list.id)}>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="16"
@@ -503,27 +471,6 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
             </div>
           </div>
         ))}
-
-        {/* Add List Button */}
-        <div className="add-list-column">
-          <button className="add-list-btn" onClick={handleAddList}>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-            <span>Add List</span>
-          </button>
-        </div>
       </div>
 
       {isModalOpen && (
@@ -531,7 +478,7 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
           <div className="modal">
             <div className="modal-header">
               <h2>
-                {modalData._id ? "Edit" : "Add"}{" "}
+                {modalData.id ? "Edit" : "Add"}{" "}
                 {modalType === "list" ? "List" : modalType === "task" ? "Task" : "Reminder"}
               </h2>
               <button className="close-btn" onClick={() => setIsModalOpen(false)}>
@@ -597,4 +544,3 @@ const KanbanBoard = ({  boardTitle, backgroundImage, organizationId }) => {
 }
 
 export default KanbanBoard
-
