@@ -1,14 +1,15 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import router from './router/route.js'; // Single file for all routes
 
-dotenv.config(); // Load environment variables
+import cors from 'cors';
+import router from './router/route.js';// Single file for all routes
 
 const app = express();
-app.use(cors());
-app.options('*', cors()); // Enable preflight requests
+app.use(cors())
+app.options('*', cors()); // Enable preflight requests for all routes
+
+
+
 
 app.use(express.json());
 app.use((req, res, next) => {
@@ -17,10 +18,10 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/api', router);
+app.use('/api', router); // All routes are handled in one file
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI)
+mongoose.connect('mongodb+srv://harsh:H%40rshdalmia@login.jypzsqf.mongodb.net/')
   .then(() => {
     console.log('MongoDB connected');
   })
@@ -29,7 +30,7 @@ mongoose.connect(process.env.MONGODB_URI)
   });
 
 // Start the server
-const PORT = process.env.PORT || 3000;
+const PORT = 3000
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
