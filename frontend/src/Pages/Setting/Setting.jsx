@@ -1,6 +1,6 @@
 import React from "react";
 import { UserProfile ,OrganizationProfile} from "@clerk/clerk-react"; // Clerk UserProfile component
-import Sidebar from "../../components/Sidebar/sidebar"
+import Sidebar from "../../components/Sidebar/Sidebar";
 import Header from "../../components/Header/Header"
 import "./Setting.css"; // Import styles
 
